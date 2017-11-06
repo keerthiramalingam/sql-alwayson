@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters":{
+      "adminusername": {}
+  },
+  "variables": {
+      "baseURL":"https://raw.githubusercontent.com/keerthiramalingam/sql-alwayson/master",
+      "templatesBaseURL": "[concat(variables('baseURL'),'/nested')]",
+      "sqlServerPublicIP": "X.X.X.X",
+      "Virtual networksubnet range": "X.X.X.X",
+      "configuration": {
+          "storageAccountVirtualNetworkPublicIP": "[concat(variables('templatesBaseURL'),'/storageAccountVirtualNetworkPublicIP.json')"
+      }
+  },
+  "resources": [
+    {
+        "name": "StorageAccountVirtualNetworkPublicIP",
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2015-01-01",
+        "comments": "This resource will create storage accounts for Active Directory, SQL Server, File Share Witness and Diagnostics. It will also create the Virtual Network and public IP addresses",
+        "properties": {
+          "mode": "Incremental",
+          "templateLink": {
+            "uri": "[variables('configuration').storageAccountVirtualNetworkPublicIP]",
+            "contentVersion": "1.0.0.0"
+          },
+          "parameters": {
+            "location": {
+              "value": "[resourceGroup().location]"
+            },
+            "sqlStorageAccountName": {
+              "value": "[parameters('sqlStorageAccountName')]"
+            },
+            "dcStorageAccountName": {
+              "value": "[parameters('dcStorageAccountName')]"
+            },
+            "SqlStorageAccountType": {
+              "value": "[parameters('sqlStorageAccountType')]"
+            },
+            "DcStorageAccountType": {
+              "value": "[parameters('dcStorageAccountType')]"
+            },
+            "primaryDCIPAddressNameWithSuffix": {
+              "value": "[variables('primaryDCIPAddressNameWithSuffix')]"
+            },
+            "backupDCIPAddressNameWithSuffix": {
+              "value": "[variables('backupDCIPAddressNameWithSuffix')]"
+            },
+            "sql1AddressNameWithSuffix": {
+              "value": "[variables('sql1AddressNameWithSuffix')]"
+            },
+            "sql0AddressNameWithSuffix": {
+              "value": "[variables('sql0AddressNameWithSuffix')]"
+            },
+            "virtualNetworkName": {
+              "value": "[variables('virtualNetworkNameWithSuffix')]"
+            },
+            "virtualNetworkAddressRange": {
+              "value": "[parameters('virtualNetworkAddressRange')]"
+            },
+            "subnets": {
+              "value": "[variables('subnets')]"
+            }
+          }
+        }
+    }
+    
+    
+]
+
+}
