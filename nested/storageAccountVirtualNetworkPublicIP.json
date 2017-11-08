@@ -60,15 +60,6 @@
     },
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "name": "[concat(uniquestring(parameters('sqlStorageAccountName')), 'fsw')]",
-      "apiVersion": "2015-05-01-preview",
-      "location": "[parameters('location')]",
-      "properties": {
-        "accountType": "Standard_LRS"
-      }
-    },
-    {
-      "type": "Microsoft.Storage/storageAccounts",
       "name": "[concat(uniquestring(parameters('sqlStorageAccountName')), 'diag')]",
       "apiVersion": "2015-05-01-preview",
       "location": "[parameters('location')]",
@@ -82,7 +73,7 @@
       "name": "[parameters('primaryDCIPAddressNameWithSuffix')]",
       "location": "[parameters('location')]",
       "properties": {
-        "publicIPAllocationMethod": "dynamic"
+        "publicIPAllocationMethod": "Dynamic"
       }
     },
     {
@@ -91,7 +82,16 @@
       "name": "[parameters('backupDCIPAddressNameWithSuffix')]",
       "location": "[parameters('location')]",
       "properties": {
-        "publicIPAllocationMethod": "dynamic"
+        "publicIPAllocationMethod": "Dynamic"
+      }
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[parameters('sql2AddressNameWithSuffix')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
       }
     },
     {
@@ -100,7 +100,7 @@
       "name": "[parameters('sql1AddressNameWithSuffix')]",
       "location": "[parameters('location')]",
       "properties": {
-        "publicIPAllocationMethod": "dynamic"
+        "publicIPAllocationMethod": "Dynamic"
       }
     },
     {
@@ -109,7 +109,7 @@
       "name": "[parameters('sql0AddressNameWithSuffix')]",
       "location": "[parameters('location')]",
       "properties": {
-        "publicIPAllocationMethod": "dynamic"
+        "publicIPAllocationMethod": "Dynamic"
       }
     },
     {

@@ -11,8 +11,8 @@ function Get-TargetResource
         [parameter(Mandatory)]
         [string] $Name,
 
-        [parameter(Mandatory)]
-        [string] $SharePath,
+#        [parameter(Mandatory)]
+#        [string] $SharePath,
 
         [parameter(Mandatory)]
         [PSCredential] $DomainAdministratorCredential
@@ -22,10 +22,6 @@ function Get-TargetResource
     {
         ($oldToken, $context, $newToken) = ImpersonateAs -cred $DomainAdministratorCredential
         $quorum = Get-Cluster -Name $Name | Get-ClusterQuorum
-        if ($quorum.QuorumResource)
-        {
-            $SharePath = $quorum.QuorumResource | Get-ClusterParameter "SharePath" | Select-Object -ExpandProperty Value
-        }
     }
     finally
     {
@@ -39,7 +35,6 @@ function Get-TargetResource
 
     @{
         Name = $Name
-        SharePath = $SharePath
         DomainAdministratorCredential = $DomainAdministratorCredential
     }
 }
@@ -52,18 +47,15 @@ function Set-TargetResource
         [string] $Name,
 
         [parameter(Mandatory)]
-        [string] $SharePath,
-
-        [parameter(Mandatory)]
         [PSCredential] $DomainAdministratorCredential
     )
 
     try
     {
-        Write-Verbose -Message "Setting cluster quorum for cluster '$($Name)' to node and file share majority type ..."
+        Write-Verbose -Message "Setting cluster quorum for cluster '$($Name)' to node node majority type :) ..."
         ($oldToken, $context, $newToken) = ImpersonateAs -cred $DomainAdministratorCredential
-        Get-Cluster -Name $Name | Set-ClusterQuorum -NodeAndFileShareMajority $SharePath | Out-Null
-        Write-Verbose -Message "Successfully configured cluster quorum for cluster '$($Name)'."
+        Get-Cluster -Name $Name | Set-ClusterQuorum -NodeMajority | Out-Null
+        Write-Verbose -Message "Dandanakkaa..  Successfully configured cluster quorum for cluster '$($Name)'."
     }
     finally
     {
@@ -84,9 +76,6 @@ function Test-TargetResource
         [string] $Name,
 
         [parameter(Mandatory)]
-        [string] $SharePath,
-
-        [parameter(Mandatory)]
         [PSCredential] $DomainAdministratorCredential
     )
 
@@ -100,15 +89,17 @@ function Test-TargetResource
 
         if ($quorum)
         {
-            if ($quorum.QuorumType -eq [Microsoft.FailoverClusters.PowerShell.ClusterQuorumType]::NodeAndFileShareMajority)
+            if ($quorum.QuorumType -eq [Microsoft.FailoverClusters.PowerShell.ClusterQuorumType]::NodeMajority)
             {
-                Write-Verbose -Message "Cluster quorum for cluster '$($Name)' is already set to node and file share majority type."
+                Write-Verbose -Message "Cluster quorum for cluster '$($Name)' is already set to node majority type."
+                Write-Verbose -Message "Yaayyyyyyyyyyyyyyyyyyyyyyyy"
                 $bRet = $true
             }
             else
             {
-                Write-Verbose -Message "Cluster quorum for cluster '$($Name)' is NOT set to node and file share majority type."
+                Write-Verbose -Message "Cluster quorum for cluster '$($Name)' is NOT set to node majority type."
                 Write-Verbose -Message "Current setting: $($quorum.QuorumType)"
+                Write-Verbose -Message "Still sooper"
             }
         }
     }

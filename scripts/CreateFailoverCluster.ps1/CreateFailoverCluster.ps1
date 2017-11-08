@@ -1,5 +1,5 @@
 #
-# Copyright="© Microsoft Corporation. All rights reserved."
+# Copyright="ï¿½ Microsoft Corporation. All rights reserved."
 #
 
 configuration CreateFailoverCluster
@@ -19,9 +19,6 @@ configuration CreateFailoverCluster
 
         [Parameter(Mandatory)]
         [String]$ClusterName,
-
-        [Parameter(Mandatory)]
-        [String]$SharePath,
 
         [Parameter(Mandatory)]
         [String[]]$Nodes,
@@ -46,6 +43,9 @@ configuration CreateFailoverCluster
 
         [Parameter(Mandatory)]
         [String]$SecondaryReplica,
+
+        [Parameter(Mandatory)]
+        [String]$SecondaryReplica1,
 
         [Parameter(Mandatory)]
         [String]$SqlAlwaysOnEndpointName,
@@ -237,17 +237,9 @@ configuration CreateFailoverCluster
             Nodes = $Nodes
         }
 
-        xWaitForFileShareWitness WaitForFSW
-        {
-            SharePath = $SharePath
-            DomainAdministratorCredential = $DomainCreds
-
-        }
-
         xClusterQuorum FailoverClusterQuorum
         {
             Name = $ClusterName
-            SharePath = $SharePath
             DomainAdministratorCredential = $DomainCreds
         }
 
@@ -293,6 +285,15 @@ configuration CreateFailoverCluster
             DependsOn = "[xCluster]FailoverCluster"
         }
 
+        xSqlServer ConfigureSqlServerSecondary1WithAlwaysOn
+        {
+            InstanceName = $SecondaryReplica1
+            SqlAdministratorCredential = $Admincreds
+            Hadr = "Enabled"
+            DomainAdministratorCredential = $DomainFQDNCreds
+            DependsOn = "[xCluster]FailoverCluster"
+        }
+
         xSqlEndpoint SqlSecondaryAlwaysOnEndpoint
         {
             InstanceName = $SecondaryReplica
@@ -301,6 +302,16 @@ configuration CreateFailoverCluster
             AllowedUser = $SQLServiceCreds.UserName
             SqlAdministratorCredential = $SQLCreds
 	    DependsOn="[xSqlServer]ConfigureSqlServerSecondaryWithAlwaysOn"
+        }
+
+        xSqlEndpoint SqlSecondary1AlwaysOnEndpoint
+        {
+            InstanceName = $SecondaryReplica1
+            Name = $SqlAlwaysOnEndpointName
+            PortNumber = 5023
+            AllowedUser = $SQLServiceCreds.UserName
+            SqlAdministratorCredential = $SQLCreds
+	    DependsOn="[xSqlServer]ConfigureSqlServerSecondary1WithAlwaysOn"
         }
         
         xSqlAvailabilityGroup SqlAG
@@ -320,6 +331,15 @@ configuration CreateFailoverCluster
             DatabaseNames = $DatabaseNames
             PrimaryReplica = $PrimaryReplica
             SecondaryReplica = $SecondaryReplica
+            SqlAdministratorCredential = $SQLCreds
+	        DependsOn = "[xSqlAvailabilityGroup]SqlAG"
+        }
+        xSqlNewAGDatabase SQLAGDatabases
+        {
+            SqlAlwaysOnAvailabilityGroupName = $SqlAlwaysOnAvailabilityGroupName
+            DatabaseNames = $DatabaseNames
+            PrimaryReplica = $PrimaryReplica
+            SecondaryReplica = $SecondaryReplica1
             SqlAdministratorCredential = $SQLCreds
 	        DependsOn = "[xSqlAvailabilityGroup]SqlAG"
         }

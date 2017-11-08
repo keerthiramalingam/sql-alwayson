@@ -98,45 +98,12 @@
       },
       "defaultValue": "Standard_DS4"
     },
-    "witnessVMSize": {
-      "type": "string",
-      "allowedValues": [
-        "Standard_DS1",
-        "Standard_DS2",
-        "Standard_DS3",
-        "Standard_DS4",
-        "Standard_DS11",
-        "Standard_DS12",
-        "Standard_DS13",
-        "Standard_DS14",
-        "Standard_DS1_v2",
-        "Standard_DS2_v2",
-        "Standard_DS3_v2",
-        "Standard_DS4_v2",
-        "Standard_DS5_v2",
-        "Standard_DS11_v2",
-        "Standard_DS12_v2",
-        "Standard_DS13_v2",
-        "Standard_DS14_v2",
-        "Standard_DS15_v2",
-        "Standard_GS1",
-        "Standard_GS2",
-        "Standard_GS3",
-        "Standard_GS4",
-        "Standard_GS4",
-        "Standard_GS5"
-      ],
-      "metadata": {
-        "description": "The size of the Witness VM Created"
-      },
-      "defaultValue": "Standard_DS1"
-    },
     "domainName": {
       "type": "string",
       "metadata": {
         "description": "The FQDN of the AD Domain created "
       },
-      "defaultValue": "contoso.local"
+      "defaultValue": "keerthi.io"
     },
     "sqlServerServiceAccountUserName": {
       "type": "string",
@@ -160,12 +127,13 @@
     "sqlStorageAccountType": {
       "type": "string",
       "allowedValues": [
-        "Premium_LRS"
+        "Premium_LRS",
+        "Standard_LRS"
       ],
       "metadata": {
         "description": "The type of the Sql Server Storage Account created"
       },
-      "defaultValue": "Premium_LRS"
+      "defaultValue": "Standard_LRS"
     },
     "dcStorageAccountName": {
       "type": "string",
@@ -247,14 +215,14 @@
       "metadata": {
         "description": "Linked Templates base url"
       },
-      "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/sqlvm-alwayson-cluster/nested"
+      "defaultValue": "https://raw.githubusercontent.com/keerthiramalingam/sql-alwayson/3Nodes/nested"
     },
     "scriptsBaseUrl": {
       "type": "string",
       "metadata": {
         "description": "DSC Scripts base url"
       },
-      "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/sqlvm-alwayson-cluster/scripts"
+      "defaultValue": "https://raw.githubusercontent.com/keerthiramalingam/sql-alwayson/3Nodes/scripts"
     },
     "autoPatchingDay": {
       "type": "string",
@@ -338,7 +306,7 @@
       "metadata": {
         "description": "The Sql Server Version"
       },
-      "defaultValue": "SQL2014SP1-WS2012R2"
+      "defaultValue": "SQL2016-WS2012R2"
     },
     "numberOfSqlVMDisks": {
       "type": "string",
@@ -383,6 +351,7 @@
     "SQLAOProbe": "SQLAlwaysOnEndPointProbe",
     "primaryDCIPAddressName": "primaryDCIP",
     "backupDCIPAddressName": "backupDCIP",
+    "sql2AddressName": "sql2IP",
     "sql1AddressName": "sql1IP",
     "sql0AddressName": "sql0IP",
     "vmSettings": {
@@ -390,12 +359,11 @@
         "sqlAvailabilitySetName": "sqlAvailabilitySet",
         "adAvailabilitySetName": "adAvailabilitySet"
       },
-      "noOfSqlVMs": 2,
+      "noOfSqlVMs": 3,
       "vmContainerName": "vhds",
       "adPDCVMName": "ad-primary-dc",
       "adBDCVMName": "ad-secondary-dc",
       "sqlVMName": "sqlserver-",
-      "sqlwVMName": "cluster-fsw",
       "windowsImagePublisher": "MicrosoftWindowsServer",
       "windowsImageOffer": "WindowsServer",
       "windowsImageSKU": "2012-R2-Datacenter",
@@ -406,11 +374,9 @@
       "sqlDiskSize": 1000
     },
     "sqlAOEPName": "[concat(parameters('deploymentPrefix'),'-hadr')]",
-    "sharePath": "[concat(parameters('deploymentPrefix'),'-fsw')]",
     "clusterName": "[concat(parameters('deploymentPrefix'),'-fc')]",
     "adPDCNicName": "[concat(variables('vmSettings').adPDCVMName,'-nic')]",
     "adBDCNicName": "[concat(variables('vmSettings').adBDCVMName,'-nic')]",
-    "sqlwNicName": "[concat(variables('vmSettings').sqlwVMName,'-nic')]",
     "VnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkNameWithSuffix'))]",
     "staticSubnetRef": "[concat(variables('VnetID'),'/subnets/',variables('subnetNames').staticSubnetName)]",
     "sqlSubnetRef": "[concat(variables('VnetID'),'/subnets/',variables('subnetNames').sqlSubnetName)]",
@@ -459,6 +425,7 @@
     "virtualNetworkNameWithSuffix": "[substring(concat(parameters('virtualNetworkName'), uniqueString(parameters('sqlStorageAccountName'),parameters('dcStorageAccountName'))),0,15)]",
     "primaryDCIPAddressNameWithSuffix": "[substring(concat(variables('primaryDCIPAddressName'), uniqueString(parameters('sqlStorageAccountName'),parameters('dcStorageAccountName'))),0,15)]",
     "backupDCIPAddressNameWithSuffix": "[substring(concat(variables('backupDCIPAddressName'), uniqueString(parameters('sqlStorageAccountName'),parameters('dcStorageAccountName'))),0,15)]",
+    "sql2AddressNameWithSuffix": "[substring(concat(variables('sql2AddressName'), uniqueString(parameters('sqlStorageAccountName'),parameters('dcStorageAccountName'))),0,15)]",
     "sql1AddressNameWithSuffix": "[substring(concat(variables('sql1AddressName'), uniqueString(parameters('sqlStorageAccountName'),parameters('dcStorageAccountName'))),0,15)]",
     "sql0AddressNameWithSuffix": "[substring(concat(variables('sql0AddressName'), uniqueString(parameters('sqlStorageAccountName'),parameters('dcStorageAccountName'))),0,15)]",
     "configuration": {
@@ -518,6 +485,9 @@
           },
           "backupDCIPAddressNameWithSuffix": {
             "value": "[variables('backupDCIPAddressNameWithSuffix')]"
+          },
+          "sql2AddressNameWithSuffix": {
+            "value": "[variables('sql2AddressNameWithSuffix')]"
           },
           "sql1AddressNameWithSuffix": {
             "value": "[variables('sql1AddressNameWithSuffix')]"
@@ -632,14 +602,14 @@
           "sqlBEAddressPoolID": {
             "value": "[variables('derivedIds').sqlBEAddressPoolID]"
           },
-          "sqlwNicName": {
-            "value": "[variables('sqlwNicName')]"
-          },
           "primaryDCIPAddressNameWithSuffix": {
             "value": "[variables('primaryDCIPAddressNameWithSuffix')]"
           },
           "backupDCIPAddressNameWithSuffix": {
             "value": "[variables('backupDCIPAddressNameWithSuffix')]"
+          },
+          "sql2AddressNameWithSuffix": {
+            "value": "[variables('sql2AddressNameWithSuffix')]"
           },
           "sql1AddressNameWithSuffix": {
             "value": "[variables('sql1AddressNameWithSuffix')]"
@@ -744,15 +714,6 @@
           },
           "sqlImageSKU": {
             "value": "[variables(parameters('sqlServerVersion'))]"
-          },
-          "witnessVMSize": {
-            "value": "[parameters('witnessVMSize')]"
-          },
-          "sqlwVMName": {
-            "value": "[variables('vmSettings').sqlwVMName]"
-          },
-          "sqlwNicName": {
-            "value": "[variables('sqlwNicName')]"
           }
         }
       }
@@ -865,53 +826,11 @@
       }
     },
     {
-      "name": "UpdatingSQLWNic",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "dependsOn": [
-        "Microsoft.Resources/deployments/UpdatingDNStoPrimaryADVM"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('configuration').nicTemplateURL]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "location": {
-            "value": "[resourceGroup().location]"
-          },
-          "nicName": {
-            "value": "[variables('sqlwNicName')]"
-          },
-          "ipConfigurations": {
-            "value": [
-              {
-                "name": "ipconfig1",
-                "properties": {
-                  "privateIPAllocationMethod": "Dynamic",
-                  "subnet": {
-                    "id": "[variables('sqlSubnetRef')]"
-                  }
-                }
-              }
-            ]
-          },
-          "dnsServers": {
-            "value": [
-              "[parameters('adPDCNICIPAddress')]",
-              "[parameters('adBDCNICIPAddress')]"
-            ]
-          }
-        }
-      }
-    },
-    {
       "name": "UpdatingSQL0Nic",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
       "dependsOn": [
-        "Microsoft.Resources/deployments/UpdatingSQLWNic"
+        "Microsoft.Resources/deployments/UpdatingDNStoPrimaryADVM"
       ],
       "properties": {
         "mode": "Incremental",
@@ -1007,11 +926,61 @@
       }
     },
     {
+      "name": "UpdatingSQL2Nic",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "Microsoft.Resources/deployments/UpdatingSQL1Nic"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('configuration').nicTemplateURL]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "location": {
+            "value": "[resourceGroup().location]"
+          },
+          "nicName": {
+            "value": "[concat(variables('vmSettings').sqlVMName, '2-nic')]"
+          },
+          "ipConfigurations": {
+            "value": [
+              {
+                "name": "ipconfig1",
+                "properties": {
+                  "privateIPAllocationMethod": "Dynamic",
+                  "subnet": {
+                    "id": "[variables('sqlSubnetRef')]"
+                  },
+                  "publicIpAddress": {
+                    "id": "[resourceId(resourceGroup().Name,'Microsoft.Network/publicIpAddresses', variables('sql2AddressNameWithSuffix'))]"
+                  },
+                  "loadBalancerBackendAddressPools": [
+                    {
+                      "id": "[variables('derivedIds').sqlBEAddressPoolID]"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "dnsServers": {
+            "value": [
+              "[parameters('adPDCNICIPAddress')]",
+              "[parameters('adBDCNICIPAddress')]"
+            ]
+          }
+        }
+      }
+    },
+    {
       "name": "PreparingAlwaysOnSqlServer",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
       "dependsOn": [
-        "Microsoft.Resources/deployments/UpdatingSQL0Nic"
+        "Microsoft.Resources/deployments/UpdatingSQL2Nic"
       ],
       "properties": {
         "mode": "Incremental",
@@ -1049,9 +1018,6 @@
           },
           "sqlServerServiceAccountPassword": {
             "value": "[parameters('sqlServerServiceAccountPassword')]"
-          },
-          "sharePath": {
-            "value": "[variables('sharePath')]"
           },
           "adPDCVMName": {
             "value": "[variables('vmSettings').adPDCVMName]"
