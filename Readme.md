@@ -1,4 +1,5 @@
 SQL server Always ON ARM template
+SQL server with 2 Nodes and 1 File share Witness
 
 
 
