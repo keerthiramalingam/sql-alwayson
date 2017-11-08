@@ -1,5 +1,5 @@
 SQL server Always ON ARM template
-
+3 nodes with no file share witness
 
 
 
