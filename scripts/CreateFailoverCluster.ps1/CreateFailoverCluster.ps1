@@ -334,7 +334,7 @@ configuration CreateFailoverCluster
             SqlAdministratorCredential = $SQLCreds
 	        DependsOn = "[xSqlAvailabilityGroup]SqlAG"
         }
-        xSqlNewAGDatabase SQLAGDatabases
+        xSqlNewAGDatabase SQLAGDatabases1
         {
             SqlAlwaysOnAvailabilityGroupName = $SqlAlwaysOnAvailabilityGroupName
             DatabaseNames = $DatabaseNames

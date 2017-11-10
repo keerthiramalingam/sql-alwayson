@@ -32,21 +32,6 @@
       "sqlServerServiceAccountPassword":{  
          "type":"securestring"
       },
-      "sharePath":{  
-         "type":"string"
-      },
-      "adPDCVMName":{  
-         "type":"string"
-      },
-      "sqlwVMName":{  
-         "type":"string"
-      },
-      "fswModulesURL":{  
-         "type":"string"
-      },
-      "fswConfigurationFunction":{  
-         "type":"string"
-      },
       "autoPatchingEnable":{  
          "type":"bool"
       },
@@ -84,35 +69,6 @@
       "0":"Everyday"
    },
    "resources":[  
-      {  
-         "type":"Microsoft.Compute/virtualMachines/extensions",
-         "name":"[concat(parameters('sqlwVMName'),'/CreateFileShareWitness')]",
-         "apiVersion":"2015-06-15",
-         "location":"[parameters('location')]",
-         "properties":{  
-            "publisher":"Microsoft.Powershell",
-            "type":"DSC",
-            "typeHandlerVersion":"2.19",
-            "autoUpgradeMinorVersion":false,
-            "settings":{  
-               "modulesURL":"[parameters('fswModulesURL')]",
-               "configurationFunction":"[parameters('fswConfigurationFunction')]",
-               "properties":{  
-                  "domainName":"[parameters('domainName')]",
-                  "SharePath":"[parameters('sharePath')]",
-                  "adminCreds":{  
-                     "userName":"[parameters('adminUsername')]",
-                     "password":"privateSettingsRef:adminPassword"
-                  }
-               }
-            },
-            "protectedSettings":{  
-               "items":{  
-                  "adminPassword":"[parameters('adminPassword')]"
-               }
-            }
-         }
-      },
       {  
          "apiVersion":"2015-06-15",
          "type":"Microsoft.Compute/virtualMachines/extensions",
@@ -172,12 +128,40 @@
          }
       },
       {  
+        "apiVersion":"2015-06-15",
+        "type":"Microsoft.Compute/virtualMachines/extensions",
+        "name":"[concat(parameters('sqlVMName'),'2/SqlVmIaasExtension')]",
+        "location":"[parameters('location')]",
+        "properties":{  
+           "type":"SqlIaaSAgent",
+           "publisher":"Microsoft.SqlServer.Management",
+           "typeHandlerVersion":"1.2",
+           "autoUpgradeMinorVersion":"true",
+           "settings":{  
+              "AutoTelemetrySettings":{  
+                 "Region":"[parameters('location')]"
+              },
+              "AutoPatchingSettings":{  
+                 "PatchCategory":"WindowsMandatoryUpdates",
+                 "Enable":"[parameters('autoPatchingEnable')]",
+                 "DayOfWeek":"[parameters('autoPatchingDay')]",
+                 "MaintenanceWindowStartingHour":"[int(parameters('autoPatchingStartHour'))]",
+                 "MaintenanceWindowDuration":"60"
+              },
+              "AutoBackupSettings":{  
+                 "Enable":false,
+                 "RetentionPeriod":"30",
+                 "EnableEncryption":false
+              }
+           }
+        }
+     },
+      {  
          "type":"Microsoft.Compute/virtualMachines/extensions",
          "name":"[concat(parameters('sqlVMName'),'0/sqlAOPrepare')]",
          "apiVersion":"2015-06-15",
          "location":"[parameters('location')]",
          "dependsOn":[  
-            "[concat('Microsoft.Compute/virtualMachines/',parameters('sqlwVMName'),'/extensions/CreateFileShareWitness')]",
             "[concat('Microsoft.Compute/virtualMachines/',parameters('sqlVMName'),'0/extensions/SqlVmIaasExtension')]"
          ],
          "properties":{  
@@ -211,6 +195,45 @@
             }
          }
       }
+      {  
+        "type":"Microsoft.Compute/virtualMachines/extensions",
+        "name":"[concat(parameters('sqlVMName'),'2/sqlAOPrepare')]",
+        "apiVersion":"2015-06-15",
+        "location":"[parameters('location')]",
+        "dependsOn":[  
+           "[concat('Microsoft.Compute/virtualMachines/',parameters('sqlVMName'),'2/extensions/SqlVmIaasExtension')]"
+        ],
+        "properties":{  
+           "publisher":"Microsoft.Powershell",
+           "type":"DSC",
+           "typeHandlerVersion":"2.19",
+           "autoUpgradeMinorVersion":false,
+           "settings":{  
+              "modulesURL":"[parameters('sqlAOPrepareModulesURL')]",
+              "configurationFunction":"[parameters('sqlAOPrepareConfigurationFunction')]",
+              "properties":{  
+                 "domainName":"[parameters('domainName')]",
+                 "sqlAlwaysOnEndpointName":"[parameters('sqlAOEPName')]",
+                 "adminCreds":{  
+                    "userName":"[parameters('adminUsername')]",
+                    "password":"privateSettingsRef:AdminPassword"
+                 },
+                 "sqlServiceCreds":{  
+                    "userName":"[parameters('sqlServerServiceAccountUserName')]",
+                    "password":"privateSettingsRef:SqlServerServiceAccountPassword"
+                 },
+                 "NumberOfDisks":"[parameters('numberOfDisks')]",
+                 "WorkloadType":"[parameters('workloadType')]"
+              }
+           },
+           "protectedSettings":{  
+              "items":{  
+                 "adminPassword":"[parameters('adminPassword')]",
+                 "sqlServerServiceAccountPassword":"[parameters('sqlServerServiceAccountPassword')]"
+              }
+           }
+        }
+     }
    ],
    "outputs":{  
 
