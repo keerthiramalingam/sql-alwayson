@@ -6,25 +6,25 @@
          "value":"alwaysonadmin"
       },
       "adminPassword":{  
-         "value":"GEN-PASSWORD"
+         "value":"kit-Pass$123"
       },
       "sqlServerServiceAccountUserName":{  
          "value":"sqlservice"
       },
       "sqlServerServiceAccountPassword":{  
-         "value":"GEN-PASSWORD"
+         "value":"kit-Pass$123"
       },
       "sqlStorageAccountType":{  
-         "value":"Premium_LRS"
+         "value":"Standard_LRS"
       },
       "dcStorageAccountType":{  
          "value":"Standard_LRS"
       },
       "sqlStorageAccountName":{  
-         "value":"GEN-UNIQUE"
+         "value":"kit-sqlStorage"
       },
       "dcStorageAccountName":{  
-         "value":"GEN-UNIQUE"
+         "value":"kit-dcStorage"
       },
       "adVMSize":{  
          "value":"Standard_D1_v2"
@@ -32,11 +32,8 @@
       "sqlVMSize":{  
          "value":"Standard_DS4"
       },
-      "witnessVMSize":{  
-         "value":"Standard_DS1"
-      },
       "domainName":{  
-         "value":"contoso.local"
+         "value":"keerthi.io"
       },
       "virtualNetworkAddressRange":{  
          "value":"10.0.0.0/16"
@@ -63,13 +60,13 @@
          "value":"alwayson-ag-listener"
       },
       "sqlServerVersion":{  
-         "value":"SQL2014SP1-WS2012R2"
+         "value":"SQL2016-WS2012R2"
       },
       "numberOfSqlVMDisks":{  
          "value":"2"
       },
       "workloadType":{  
-         "value":"OLTP"
+         "value":"GENERAL"
       }
    }
 }
