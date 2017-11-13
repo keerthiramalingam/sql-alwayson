@@ -6,13 +6,15 @@
       "type": "string",
       "metadata": {
         "description": "The name of the Administrator of the new VMs and Domain"
-      }
+      },
+      "defaultValue": "alwaysonadmin"
     },
     "adminPassword": {
       "type": "securestring",
       "metadata": {
         "description": "The password for the Administrator account of the new VMs and Domain"
-      }
+      },
+      "defaultValue":"kit-Pass$123"
     },
     "adVMSize": {
       "type": "string",
@@ -110,19 +112,21 @@
       "metadata": {
         "description": "The SQL Server Service Account name"
       },
-      "defaultValue": "sqlservice"
+      "defaultValue": "sqlservice-uniq"
     },
     "sqlServerServiceAccountPassword": {
       "type": "securestring",
       "metadata": {
         "description": "The SQL Server Service Account password"
-      }
+      },
+      "defaultValue": "kit-Pass$123"
     },
     "sqlStorageAccountName": {
       "type": "string",
       "metadata": {
         "description": "The name of Sql Server Storage Account"
-      }
+      },
+      "defaultValue":"kit-sqlStorage"
     },
     "sqlStorageAccountType": {
       "type": "string",
@@ -139,7 +143,8 @@
       "type": "string",
       "metadata": {
         "description": "The name of  DC Storage Account"
-      }
+      },
+      "defaultValue":"kit-dcStorage"
     },
     "dcStorageAccountType": {
       "type": "string",
