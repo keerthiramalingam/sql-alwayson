@@ -88,7 +88,7 @@
          "name":"[parameters('rdpIPAddressName')]",
          "location":"[parameters('location')]",
          "properties":{  
-            "publicIPAllocationMethod":"dynamic"
+            "publicIPAllocationMethod":"Dynamic"
          }
       },
       {  

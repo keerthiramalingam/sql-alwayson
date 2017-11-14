@@ -81,10 +81,10 @@
                {  
                   "name":"[parameters('SQLAOProbe')]",
                   "properties":{  
-                     "protocol":"tcp",
+                     "protocol":"Tcp",
                      "port":59999,
-                     "intervalInSeconds":"5",
-                     "numberOfProbes":"2"
+                     "intervalInSeconds":5,
+                     "numberOfProbes":2
                   }
                }
             ]

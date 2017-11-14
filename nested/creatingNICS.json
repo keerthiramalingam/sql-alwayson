@@ -35,9 +35,6 @@
     "sqlBEAddressPoolID": {
       "type": "string"
     },
-    "sqlwNicName": {
-      "type": "string"
-    },
     "primaryDCIPAddressNameWithSuffix": {
       "type": "string"
     },
