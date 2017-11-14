@@ -32,6 +32,9 @@
     "backupDCIPAddressNameWithSuffix": {
       "type": "string"
     },
+    "sql2AddressNameWithSuffix": {
+      "type": "string"
+    },
     "sql1AddressNameWithSuffix": {
       "type": "string"
     },
