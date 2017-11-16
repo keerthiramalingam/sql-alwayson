@@ -21,10 +21,10 @@
          "value":"Standard_LRS"
       },
       "sqlStorageAccountName":{  
-         "value":"kitsqlStorage198"
+         "value":"kitsqlstorage198"
       },
       "dcStorageAccountName":{  
-         "value":"kitdcStorage198"
+         "value":"kitdcstorage198"
       },
       "adVMSize":{  
          "value":"Standard_D1_v2"

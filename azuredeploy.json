@@ -126,7 +126,7 @@
       "metadata": {
         "description": "The name of Sql Server Storage Account"
       },
-      "defaultValue":"kitsqlStorage198"
+      "defaultValue":"kitsqlstorage198"
     },
     "sqlStorageAccountType": {
       "type": "string",
@@ -144,7 +144,7 @@
       "metadata": {
         "description": "The name of  DC Storage Account"
       },
-      "defaultValue":"kitdcStorage198"
+      "defaultValue":"kitdcstorage198"
     },
     "dcStorageAccountType": {
       "type": "string",
