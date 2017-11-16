@@ -707,6 +707,9 @@
           },
           "sqlImageOffer": {
             "value": "[variables('vmSettings').sqlImageOffer]"
+          },
+          "sqlImageSKU": {
+            "value": "[variables(parameters('sqlServerVersion'))]"
           }
         }
       }
