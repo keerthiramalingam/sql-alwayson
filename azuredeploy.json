@@ -65,7 +65,7 @@
       "metadata": {
         "description": "The size of the AD VMs Created"
       },
-      "defaultValue": "Standard_D1"
+      "defaultValue": "Standard_D1_v2"
     },
     "sqlVMSize": {
       "type": "string",
@@ -98,7 +98,7 @@
       "metadata": {
         "description": "The size of the SQL VMs Created"
       },
-      "defaultValue": "Standard_DS4"
+      "defaultValue": "Standard_DS1"
     },
     "domainName": {
       "type": "string",
@@ -186,13 +186,6 @@
         "description": "The IP address of the new AD VM"
       },
       "defaultValue": "10.0.0.4"
-    },
-    "adBDCNICIPAddress": {
-      "type": "string",
-      "metadata": {
-        "description": "The IP address of the new backup AD VM"
-      },
-      "defaultValue": "10.0.0.5"
     },
     "sqlLBIPAddress": {
       "type": "string",
@@ -355,19 +348,16 @@
     "RDPNAT": "RDP",
     "SQLAOProbe": "SQLAlwaysOnEndPointProbe",
     "primaryDCIPAddressName": "primaryDCIP",
-    "backupDCIPAddressName": "backupDCIP",
     "sql2AddressName": "sql2IP",
     "sql1AddressName": "sql1IP",
     "sql0AddressName": "sql0IP",
     "vmSettings": {
       "availabilitySets": {
-        "sqlAvailabilitySetName": "sqlAvailabilitySet",
-        "adAvailabilitySetName": "adAvailabilitySet"
+        "sqlAvailabilitySetName": "sqlAvailabilitySet"
       },
       "noOfSqlVMs": 3,
       "vmContainerName": "vhds",
       "adPDCVMName": "ad-primary-dc",
-      "adBDCVMName": "ad-secondary-dc",
       "sqlVMName": "sqlserver-",
       "windowsImagePublisher": "MicrosoftWindowsServer",
       "windowsImageOffer": "WindowsServer",
@@ -381,7 +371,6 @@
     "sqlAOEPName": "[concat(parameters('deploymentPrefix'),'-hadr')]",
     "clusterName": "[concat(parameters('deploymentPrefix'),'-fc')]",
     "adPDCNicName": "[concat(variables('vmSettings').adPDCVMName,'-nic')]",
-    "adBDCNicName": "[concat(variables('vmSettings').adBDCVMName,'-nic')]",
     "VnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkNameWithSuffix'))]",
     "staticSubnetRef": "[concat(variables('VnetID'),'/subnets/',variables('subnetNames').staticSubnetName)]",
     "sqlSubnetRef": "[concat(variables('VnetID'),'/subnets/',variables('subnetNames').sqlSubnetName)]",
@@ -394,7 +383,6 @@
       "adIPConfigID": "[concat(variables('ids').adNicId,'/ipConfigurations/ipconfig1')]",
       "rdplbFEConfigID": "[concat(variables('ids').rdplbID,'/frontendIPConfigurations/',variables('lbSettings').rdpLBFE)]",
       "adRDPNATRuleID": "[concat(variables('ids').rdplbID,'/inboundNatRules/',variables('RDPNAT'))]",
-      "adBEAddressPoolID": "[concat(variables('ids').rdplbID,'/backendAddressPools/',variables('lbSettings').adLBBE)]",
       "sqlBEAddressPoolID": "[concat(variables('ids').sqllbID,'/backendAddressPools/',variables('lbSettings').sqlLBBE)]",
       "sqllbFEConfigID": "[concat(variables('ids').sqllbID,'/frontendIPConfigurations/',variables('lbSettings').sqlLBFE)]",
       "sqllbProbeID": "[concat(variables('ids').sqllbID,'/probes/',variables('SQLAOProbe'))]"
@@ -429,7 +417,6 @@
     ],
     "virtualNetworkNameWithSuffix": "[substring(concat(parameters('virtualNetworkName'), uniqueString(parameters('sqlStorageAccountName'),parameters('dcStorageAccountName'))),0,15)]",
     "primaryDCIPAddressNameWithSuffix": "[substring(concat(variables('primaryDCIPAddressName'), uniqueString(parameters('sqlStorageAccountName'),parameters('dcStorageAccountName'))),0,15)]",
-    "backupDCIPAddressNameWithSuffix": "[substring(concat(variables('backupDCIPAddressName'), uniqueString(parameters('sqlStorageAccountName'),parameters('dcStorageAccountName'))),0,15)]",
     "sql2AddressNameWithSuffix": "[substring(concat(variables('sql2AddressName'), uniqueString(parameters('sqlStorageAccountName'),parameters('dcStorageAccountName'))),0,15)]",
     "sql1AddressNameWithSuffix": "[substring(concat(variables('sql1AddressName'), uniqueString(parameters('sqlStorageAccountName'),parameters('dcStorageAccountName'))),0,15)]",
     "sql0AddressNameWithSuffix": "[substring(concat(variables('sql0AddressName'), uniqueString(parameters('sqlStorageAccountName'),parameters('dcStorageAccountName'))),0,15)]",
@@ -442,15 +429,10 @@
       "creatingNicsUrl": "[concat(parameters('templatesBaseUrl'),'/creatingNICS.json')]",
       "storageAccountVirtualNetworkPublicIP": "[concat(parameters('templatesBaseUrl'),'/storageAccountVirtualNetworkPublicIP.json')]",
       "provisioningVMs": "[concat(parameters('templatesBaseUrl'),'/provisioningVM',parameters('numberOfSqlVMDisks'),'.json')]",
-      "configuringBackupADVM": "[concat(parameters('templatesBaseUrl'),'/configuringBackupADVM.json')]",
       "preparingAlwaysOnSqlServer": "[concat(parameters('templatesBaseUrl'),'/preparingSqlServer.json')]",
       "configuringAlwaysOn": "[concat(parameters('templatesBaseUrl'),'/configuringAlwaysOn.json')]",
       "adPDCModulesURL": "[concat(parameters('scriptsBaseUrl'),'/CreateADPDC.ps1.zip')]",
       "adPDCConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
-      "adBDCModulesURL": "[concat(parameters('scriptsBaseUrl'),'/CreateADBDC.ps1.zip')]",
-      "adBDCConfigurationFunction": "CreateADBDC.ps1\\CreateADBDC",
-      "fswModulesURL": "[concat(parameters('scriptsBaseUrl'),'/CreateFileShareWitness.ps1.zip')]",
-      "fswConfigurationFunction": "CreateFileShareWitness.ps1\\CreateFileShareWitness",
       "sqlAOPrepareModulesURL": "[concat(parameters('scriptsBaseUrl'),'/PrepareAlwaysOnSqlServer.ps1.zip')]",
       "sqlAOPrepareConfigurationFunction": "PrepareAlwaysOnSqlServer.ps1\\PrepareAlwaysOnSqlServer",
       "createClusterModulesURL": "[concat(parameters('scriptsBaseUrl'),'/CreateFailoverCluster.ps1.zip')]",
@@ -487,9 +469,6 @@
           },
           "primaryDCIPAddressNameWithSuffix": {
             "value": "[variables('primaryDCIPAddressNameWithSuffix')]"
-          },
-          "backupDCIPAddressNameWithSuffix": {
-            "value": "[variables('backupDCIPAddressNameWithSuffix')]"
           },
           "sql2AddressNameWithSuffix": {
             "value": "[variables('sql2AddressNameWithSuffix')]"
@@ -586,17 +565,8 @@
           "staticSubnetRef": {
             "value": "[variables('staticSubnetRef')]"
           },
-          "adBEAddressPoolID": {
-            "value": "[variables('derivedIds').adBEAddressPoolID]"
-          },
           "adRDPNATRuleID": {
             "value": "[variables('derivedIds').adRDPNATRuleID]"
-          },
-          "adBDCNicName": {
-            "value": "[variables('adBDCNicName')]"
-          },
-          "adBDCNICIPAddress": {
-            "value": "[parameters('adBDCNICIPAddress')]"
           },
           "sqlVMName": {
             "value": "[variables('vmSettings').sqlVMName]"
@@ -609,9 +579,6 @@
           },
           "primaryDCIPAddressNameWithSuffix": {
             "value": "[variables('primaryDCIPAddressNameWithSuffix')]"
-          },
-          "backupDCIPAddressNameWithSuffix": {
-            "value": "[variables('backupDCIPAddressNameWithSuffix')]"
           },
           "sql2AddressNameWithSuffix": {
             "value": "[variables('sql2AddressNameWithSuffix')]"
@@ -641,9 +608,6 @@
         "parameters": {
           "adPDCVMName": {
             "value": "[variables('vmSettings').adPDCVMName]"
-          },
-          "adAvailabilitySetName": {
-            "value": "[variables('vmSettings').availabilitySets.adAvailabilitySetName]"
           },
           "sqlAvailabilitySetName": {
             "value": "[variables('vmSettings').availabilitySets.sqlAvailabilitySetName]"
@@ -689,12 +653,6 @@
           },
           "adPDCModulesURL": {
             "value": "[variables('configuration').adPDCModulesURL]"
-          },
-          "adBDCVMName": {
-            "value": "[variables('vmSettings').adBDCVMName]"
-          },
-          "adBDCNicName": {
-            "value": "[variables('adBDCNicName')]"
           },
           "sqlVMName": {
             "value": "[variables('vmSettings').sqlVMName]"
@@ -749,79 +707,6 @@
       }
     },
     {
-      "name": "ConfiguringBackupADVM",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "dependsOn": [
-        "Microsoft.Resources/deployments/ProvisioningVMs"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('configuration').configuringBackupADVM]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "location": {
-            "value": "[resourceGroup().location]"
-          },
-          "adBDCVMName": {
-            "value": "[variables('vmSettings').adBDCVMName]"
-          },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
-          },
-          "adminPassword": {
-            "value": "[parameters('adminPassword')]"
-          },
-          "domainName": {
-            "value": "[parameters('domainName')]"
-          },
-          "adBDCConfigurationFunction": {
-            "value": "[variables('configuration').adBDCConfigurationFunction]"
-          },
-          "adBDCModulesURL": {
-            "value": "[variables('configuration').adBDCModulesURL]"
-          }
-        }
-      }
-    },
-    {
-      "name": "UpdatingDNSwithBackupADVM",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "dependsOn": [
-        "Microsoft.Resources/deployments/ConfiguringBackupADVM"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('configuration').vnetwithDNSTemplateURL]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "location": {
-            "value": "[resourceGroup().location]"
-          },
-          "virtualNetworkName": {
-            "value": "[variables('virtualNetworkNameWithSuffix')]"
-          },
-          "virtualNetworkAddressRange": {
-            "value": "[parameters('virtualNetworkAddressRange')]"
-          },
-          "subnets": {
-            "value": "[variables('subnets')]"
-          },
-          "DNSServerAddress": {
-            "value": [
-              "[parameters('adPDCNICIPAddress')]",
-              "[parameters('adBDCNICIPAddress')]"
-            ]
-          }
-        }
-      }
-    },
-    {
       "name": "UpdatingSQL0Nic",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
@@ -864,8 +749,7 @@
           },
           "dnsServers": {
             "value": [
-              "[parameters('adPDCNICIPAddress')]",
-              "[parameters('adBDCNICIPAddress')]"
+              "[parameters('adPDCNICIPAddress')]"
             ]
           }
         }
@@ -914,8 +798,7 @@
           },
           "dnsServers": {
             "value": [
-              "[parameters('adPDCNICIPAddress')]",
-              "[parameters('adBDCNICIPAddress')]"
+              "[parameters('adPDCNICIPAddress')]"
             ]
           }
         }
@@ -964,8 +847,7 @@
           },
           "dnsServers": {
             "value": [
-              "[parameters('adPDCNICIPAddress')]",
-              "[parameters('adBDCNICIPAddress')]"
+              "[parameters('adPDCNICIPAddress')]"
             ]
           }
         }
@@ -1017,12 +899,6 @@
           },
           "adPDCVMName": {
             "value": "[variables('vmSettings').adPDCVMName]"
-          },
-          "fswModulesURL": {
-            "value": "[variables('configuration').fswModulesURL]"
-          },
-          "fswConfigurationFunction": {
-            "value": "[variables('configuration').fswConfigurationFunction]"
           },
           "autoPatchingDay": {
             "value": "[parameters('autoPatchingDay')]"

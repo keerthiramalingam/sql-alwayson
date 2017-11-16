@@ -14,16 +14,7 @@
     "staticSubnetRef": {
       "type": "string"
     },
-    "adBEAddressPoolID": {
-      "type": "string"
-    },
     "adRDPNATRuleID": {
-      "type": "string"
-    },
-    "adBDCNicName": {
-      "type": "string"
-    },
-    "adBDCNICIPAddress": {
       "type": "string"
     },
     "sqlVMName": {
@@ -36,9 +27,6 @@
       "type": "string"
     },
     "primaryDCIPAddressNameWithSuffix": {
-      "type": "string"
-    },
-    "backupDCIPAddressNameWithSuffix": {
       "type": "string"
     },
     "sql2AddressNameWithSuffix": {
@@ -69,29 +57,6 @@
               },
               "publicIpAddress": {
                 "id": "[resourceId(resourceGroup().Name,'Microsoft.Network/publicIpAddresses', parameters('primaryDCIPAddressNameWithSuffix'))]"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "[parameters('adBDCNicName')]",
-      "type": "Microsoft.Network/networkInterfaces",
-      "location": "[parameters('location')]",
-      "apiVersion": "2015-06-15",
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Static",
-              "privateIPAddress": "[parameters('adBDCNICIPAddress')]",
-              "subnet": {
-                "id": "[parameters('staticSubnetRef')]"
-              },
-              "publicIpAddress": {
-                "id": "[resourceId(resourceGroup().Name,'Microsoft.Network/publicIpAddresses', parameters('backupDCIPAddressNameWithSuffix'))]"
               }
             }
           }
