@@ -897,9 +897,6 @@
           "sqlServerServiceAccountPassword": {
             "value": "[parameters('sqlServerServiceAccountPassword')]"
           },
-          "adPDCVMName": {
-            "value": "[variables('vmSettings').adPDCVMName]"
-          },
           "autoPatchingDay": {
             "value": "[parameters('autoPatchingDay')]"
           },
