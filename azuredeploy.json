@@ -702,23 +702,11 @@
           "sqlVMSize": {
             "value": "[parameters('sqlVMSize')]"
           },
-          "fswImagePublisher": {
-            "value": "[variables('vmSettings').windowsImagePublisher]"
-          },
-          "fswImageOffer": {
-            "value": "[variables('vmSettings').windowsImageOffer]"
-          },
-          "fswImageSKU": {
-            "value": "[variables('vmSettings').windowsImageSKU]"
-          },
           "sqlImagePublisher": {
             "value": "[variables('vmSettings').sqlImagePublisher]"
           },
           "sqlImageOffer": {
             "value": "[variables('vmSettings').sqlImageOffer]"
-          },
-          "sqlImageSKU": {
-            "value": "[variables(parameters('sqlServerVersion'))]"
           }
         }
       }

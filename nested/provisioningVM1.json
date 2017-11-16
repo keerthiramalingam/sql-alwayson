@@ -59,15 +59,6 @@
     "sqlVMSize": {
       "type": "string"
     },
-    "fswImagePublisher": {
-      "type": "string"
-    },
-    "fswImageOffer": {
-      "type": "string"
-    },
-    "fswImageSKU": {
-      "type": "string"
-    },
     "vmContainerName": {
       "type": "string"
     },
@@ -81,15 +72,6 @@
       "type": "string"
     },
     "domainName": {
-      "type": "string"
-    },
-    "witnessVMSize": {
-      "type": "string"
-    },
-    "sqlwVMName": {
-      "type": "string"
-    },
-    "sqlwNicName": {
       "type": "string"
     }
   },
