@@ -155,7 +155,7 @@
               }
            }
         }
-     },
+      },
       {  
          "type":"Microsoft.Compute/virtualMachines/extensions",
          "name":"[concat(parameters('sqlVMName'),'0/sqlAOPrepare')]",
@@ -167,7 +167,7 @@
          "properties":{  
             "publisher":"Microsoft.Powershell",
             "type":"DSC",
-            "typeHandlerVersion":"2.19",
+            "typeHandlerVersion":"2.20",
             "autoUpgradeMinorVersion":false,
             "settings":{  
                "modulesURL":"[parameters('sqlAOPrepareModulesURL')]",
