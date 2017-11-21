@@ -24,7 +24,9 @@ function Get-TargetResource
 
     try
     {
+        Add-Content C:\PerfLogs\output.txt "Checking for AD user"
         Write-Verbose -Message "Checking if the user '$($UserName)' in domain '$($DomainName)' is present ..."
+
         $user = Get-AdUser -Identity $UserName -Credential $DomainAdministratorCredential
         Write-Verbose -Message "Found '$($UserName)' in domain '$($DomainName)'."
         $Ensure = "Present"
@@ -67,6 +69,7 @@ function Set-TargetResource
     )
     try
     {
+        Add-Content C:\PerfLogs\output.txt "Setting AD user"
         ValidateProperties @PSBoundParameters -Apply
     }
     catch
@@ -222,6 +225,7 @@ function ValidateProperties
             return ($Ensure -eq "Absent")
         }
     }
+    Add-Content C:\PerfLogs\output.txt "Tested for AD user"
 }
 
 

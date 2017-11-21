@@ -30,6 +30,7 @@ function Get-TargetResource
 
     [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.ConnectionInfo") | Out-Null
     $sc = New-Object Microsoft.SqlServer.Management.Common.ServerConnection
+    Add-Content C:\PerfLogs\output.txt "SQL Login setup"
     if ($Credential)
     {
         $sc.ConnectAsUser = $true
@@ -83,6 +84,7 @@ function Set-TargetResource
 
     [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.ConnectionInfo") | Out-Null
     $sc = New-Object Microsoft.SqlServer.Management.Common.ServerConnection
+    Add-Content C:\PerfLogs\output.txt "sql login done"
     if ($Credential)
     {
         $sc.ConnectAsUser = $true
@@ -149,6 +151,7 @@ function Set-TargetResource
         Write-Verbose -Message "Disabling login '$($Name)'"
         $login.Disable()
     }
+    Add-Content C:\PerfLogs\output.txt "sqllogin compelted"
 }
 
 function Test-TargetResource

@@ -72,7 +72,7 @@ function Set-TargetResource
     {
        $allocationSizeInByte = 65536
     }
-
+    Add-Content C:\PerfLogs\output.txt "creating Virtual disk"
     if ($NumberOfColumns -eq 1)
     {
         $disk = Get-Disk -Number 2
@@ -101,6 +101,7 @@ function Set-TargetResource
             
         if ($disk.PartitionStyle -eq "RAW")
         {
+            Add-Content C:\PerfLogs\output.txt "creating RAW Virtual disk"
             Write-Verbose -Message "Initializing disk number '$($DiskNumber)' for drive letter 'F'... "
 
             $disk | Initialize-Disk -PartitionStyle GPT -PassThru
@@ -119,6 +120,8 @@ function Set-TargetResource
     }
     else 
     {
+            Add-Content C:\PerfLogs\output.txt "creating Storage pool "
+
             $DiskSizeInByte = $BytesPerDisk*$DriveSize
             
             Write-Verbose 'Creating Storage Pool'
@@ -126,12 +129,16 @@ function Set-TargetResource
             New-StoragePool -FriendlyName 'SqlVMStoragePool' -StorageSubSystemUniqueId (Get-StorageSubSystem -FriendlyName '*Space*').uniqueID -PhysicalDisks (Get-PhysicalDisk -CanPool $true)
          
             Write-Verbose 'Creating Virtual Disk'
+
+            Add-Content C:\PerfLogs\output.txt "creating Virtual disk"
          
             New-VirtualDisk -FriendlyName 'SqlVMDataDisk' -StoragePoolFriendlyName 'SqlVMStoragePool' -Size $DiskSizeInByte -Interleave $allocationSizeInByte -NumberOfColumns $NumberOfColumns -ProvisioningType Thin -ResiliencySettingName Simple
          
             Start-Sleep -Seconds 20
          
             Write-Verbose 'Initializing Disk'
+
+            Add-Content C:\PerfLogs\output.txt "Initializing disk"
          
             Initialize-Disk -VirtualDisk (Get-VirtualDisk -FriendlyName 'SqlVMDataDisk')
           
@@ -140,16 +147,22 @@ function Set-TargetResource
             $diskNumber = ((Get-VirtualDisk -FriendlyName 'SqlVMDataDisk' | Get-Disk).Number)
           
             Write-Verbose 'Creating Partition'
+
+            Add-Content C:\PerfLogs\output.txt "creating partition"
          
             New-Partition -DiskNumber $diskNumber -UseMaximumSize -DriveLetter F
              
             Start-Sleep -Seconds 20
          
             Write-Verbose 'Formatting Volume and Assigning Drive Letter'
+
+            Add-Content C:\PerfLogs\output.txt "Assign drive letter"
              
             Format-Volume -DriveLetter F -FileSystem NTFS -NewFileSystemLabel 'Data' -Confirm:$false -Force
 
             return $true
+
+            Add-Content C:\PerfLogs\output.txt "Virtual poooool disk created"
     }
 
     return $false

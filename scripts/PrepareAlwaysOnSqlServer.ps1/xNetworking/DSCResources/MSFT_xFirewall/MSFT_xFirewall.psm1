@@ -115,6 +115,7 @@ function Set-TargetResource
     )
     
     Write-Verbose "SET: Find firewall rules with specified parameters for Name = $Name, DisplayGroup = $DisplayGroup"
+    Add-Content C:\PerfLogs\output.txt "Writing firewall rules"
     $firewallRules = Get-FirewallRules -Name $Name -DisplayGroup $DisplayGroup                                   
     
     $exists = ($firewallRules -ne $null)       
@@ -186,7 +187,7 @@ function Set-TargetResource
                                 -ApplicationPath $ApplicationPath `
                                 -Service $Service -Verbose
         }
-    }    
+    }  
     elseif ($Ensure -eq "Absent")
     {
         Write-Verbose "SET: We do not want the firewall rule to exist"        
@@ -204,6 +205,7 @@ function Set-TargetResource
             # Do Nothing
         }           
     }
+    Add-Content C:\PerfLogs\output.txt "Done with firealls"
 }
 
 # DSC uses Test-TargetResource cmdlet to check the status of the resource instance on the target machine
@@ -420,7 +422,7 @@ function Set-FirewallRule
     {
         $parameters["Service"] = $Service
     }
-
+    Add-Content C:\PerfLogs\output.txt "Invoking firewall rule"
     Write-Verbose "SET: Invoke Set-NetFirewallRule [$Name] with splatting its parameters"
     & $commandName @parameters
 }

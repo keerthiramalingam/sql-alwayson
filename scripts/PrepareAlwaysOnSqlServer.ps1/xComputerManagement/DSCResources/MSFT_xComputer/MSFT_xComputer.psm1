@@ -50,6 +50,7 @@ function Set-TargetResource
         [string] $WorkGroupName
     )
 
+    Add-Content C:\PerfLogs\output.txt "validate domain"
     ValidateDomainOrWorkGroup -DomainName $DomainName -WorkGroupName $WorkGroupName
 
     if ($Credential)
@@ -64,6 +65,8 @@ function Set-TargetResource
                 Rename-Computer -NewName $Name -DomainCredential $Credential -Force
                 
                 Write-Verbose -Message "Renamed computer to '$($Name)'."
+
+                Add-Content C:\PerfLogs\output.txt "renamed computer"
             }
             else
             {
@@ -199,6 +202,7 @@ function Set-TargetResource
                 Write-Verbose -Message "Renamed computer to '$($Name)'."
             }
         }
+    Add-Content C:\PerfLogs\output.txt "domain join doneee"
     }
 
     $global:DSCMachineStatus = 1
@@ -223,6 +227,7 @@ function Test-TargetResource
 	)
     
     Write-Verbose -Message "Checking if computer name is $Name"
+    Add-Content C:\PerfLogs\output.txt "Checking if computer name is"
     if ($Name -ne $env:COMPUTERNAME) {return $false}
 
     ValidateDomainOrWorkGroup -DomainName $DomainName -WorkGroupName $WorkGroupName
@@ -282,6 +287,7 @@ function GetComputerDomain
 {
   try
     {
+        Add-Content C:\PerfLogs\output.txt "Getting computer domain----"
         return ([System.DirectoryServices.ActiveDirectory.Domain]::GetComputerDomain()).Name
     }
     catch [System.Management.Automation.MethodInvocationException]

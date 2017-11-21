@@ -105,7 +105,7 @@ configuration PrepareAlwaysOnSqlServer
         {
             Direction = "Inbound"
             Name = "SQL-Server-Database-Engine-TCP-In"
-            DisplayName = "SQL Server Database Engine (TCP-In)"
+            DisplayName = "SQL Server Database Engine (TCP-In) -kit"
             Description = "Inbound rule for SQL Server to allow TCP traffic for the Database Engine."
             DisplayGroup = "SQL Server"
             State = "Enabled"
@@ -119,7 +119,7 @@ configuration PrepareAlwaysOnSqlServer
         {
             Direction = "Inbound"
             Name = "SQL-Server-Database-Mirroring-TCP-In"
-            DisplayName = "SQL Server Database Mirroring (TCP-In)"
+            DisplayName = "SQL Server Database Mirroring (TCP-In) -kit"
             Description = "Inbound rule for SQL Server to allow TCP traffic for the Database Mirroring."
             DisplayGroup = "SQL Server"
             State = "Enabled"
@@ -133,7 +133,7 @@ configuration PrepareAlwaysOnSqlServer
         {
             Direction = "Inbound"
             Name = "SQL-Server-Availability-Group-Listener-TCP-In"
-            DisplayName = "SQL Server Availability Group Listener (TCP-In)"
+            DisplayName = "SQL Server Availability Group Listener (TCP-In) -kit"
             Description = "Inbound rule for SQL Server to allow TCP traffic for the Availability Group listener."
             DisplayGroup = "SQL Server"
             State = "Enabled"
