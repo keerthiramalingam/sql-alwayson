@@ -98,7 +98,7 @@
       "metadata": {
         "description": "The size of the SQL VMs Created"
       },
-      "defaultValue": "Standard_DS3"
+      "defaultValue": "Standard_DS3_v2"
     },
     "domainName": {
       "type": "string",
