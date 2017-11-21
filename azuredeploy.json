@@ -213,14 +213,14 @@
       "metadata": {
         "description": "Linked Templates base url"
       },
-      "defaultValue": "https://raw.githubusercontent.com/keerthiramalingam/sql-alwayson/3Nodes/nested"
+      "defaultValue": "https://raw.githubusercontent.com/keerthiramalingam/sql-alwayson/3NodesHigh/nested"
     },
     "scriptsBaseUrl": {
       "type": "string",
       "metadata": {
         "description": "DSC Scripts base url"
       },
-      "defaultValue": "https://raw.githubusercontent.com/keerthiramalingam/sql-alwayson/3Nodes/scripts"
+      "defaultValue": "https://raw.githubusercontent.com/keerthiramalingam/sql-alwayson/3NodesHigh/scripts"
     },
     "autoPatchingDay": {
       "type": "string",
