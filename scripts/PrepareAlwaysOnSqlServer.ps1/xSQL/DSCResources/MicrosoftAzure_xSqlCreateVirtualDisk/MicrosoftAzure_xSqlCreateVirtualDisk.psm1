@@ -25,8 +25,7 @@ function Get-TargetResource
         [ValidateNotNullOrEmpty()]
         [Bool]$RebootVirtualMachine = $false 
     )
-    New-EventLog –LogName Application –Source “kittest”
-    Write-EventLog –LogName Application –Source “kittest” –EntryType Information –EventID 1 –Message “Getter Virtual disk”
+
     $bConfigured = Test-TargetResource -DriveSize $DriveSize -NumberOfColumns $NumberOfColumns -BytesPerDisk $BytesPerDisk
 
     $retVal = @{
