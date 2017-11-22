@@ -852,68 +852,6 @@
           }
         }
       }
-    },
-    {
-      "name": "PreparingAlwaysOnSqlServer",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "dependsOn": [
-        "Microsoft.Resources/deployments/UpdatingSQL2Nic"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('configuration').preparingAlwaysOnSqlServer]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "sqlVMName": {
-            "value": "[variables('vmSettings').sqlVMName]"
-          },
-          "location": {
-            "value": "[resourceGroup().location]"
-          },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
-          },
-          "adminPassword": {
-            "value": "[parameters('adminPassword')]"
-          },
-          "domainName": {
-            "value": "[parameters('domainName')]"
-          },
-          "sqlAOPrepareModulesURL": {
-            "value": "[variables('configuration').sqlAOPrepareModulesURL]"
-          },
-          "sqlAOPrepareConfigurationFunction": {
-            "value": "[variables('configuration').sqlAOPrepareConfigurationFunction]"
-          },
-          "sqlAOEPName": {
-            "value": "[variables('sqlAOEPName')]"
-          },
-          "sqlServerServiceAccountUserName": {
-            "value": "[parameters('sqlServerServiceAccountUserName')]"
-          },
-          "sqlServerServiceAccountPassword": {
-            "value": "[parameters('sqlServerServiceAccountPassword')]"
-          },
-          "autoPatchingDay": {
-            "value": "[parameters('autoPatchingDay')]"
-          },
-          "autoPatchingStartHour": {
-            "value": "[parameters('autoPatchingStartHour')]"
-          },
-          "autoPatchingEnable": {
-            "value": "[variables(parameters('autoPatchingDay'))]"
-          },
-          "numberOfDisks": {
-            "value": "[parameters('numberOfSqlVMDisks')]"
-          },
-          "workloadType": {
-            "value": "[parameters('workloadType')]"
-          }
-        }
-      }
     }
   ],
   "outputs": {}
