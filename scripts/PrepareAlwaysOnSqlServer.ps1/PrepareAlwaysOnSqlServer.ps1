@@ -58,32 +58,32 @@ configuration PrepareAlwaysOnSqlServer
             OptimizationType = $WorkloadType
             RebootVirtualMachine = $RebootVirtualMachine
         }
-
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\10.txt
         WindowsFeature FC
         {
             Name = "Failover-Clustering"
             Ensure = "Present"
         }
-
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\20.txt
         WindowsFeature FailoverClusterTools 
         { 
             Ensure = "Present" 
             Name = "RSAT-Clustering-Mgmt"
             DependsOn = "[WindowsFeature]FC"
         } 
-
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\21.txt
         WindowsFeature FCPS
         {
             Name = "RSAT-Clustering-PowerShell"
             Ensure = "Present"
         }
-
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\22.txt
         WindowsFeature ADPS
         {
             Name = "RSAT-AD-PowerShell"
             Ensure = "Present"
         }
-
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\23.txt
         xWaitForADDomain DscForestWait 
         { 
             DomainName = $DomainName 
@@ -92,7 +92,7 @@ configuration PrepareAlwaysOnSqlServer
             RetryIntervalSec = $RetryIntervalSec 
 	        DependsOn = "[WindowsFeature]ADPS"
         }
-        
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\24.txt
         xComputer DomainJoin
         {
             Name = $env:COMPUTERNAME
@@ -100,7 +100,7 @@ configuration PrepareAlwaysOnSqlServer
             Credential = $DomainCreds
 	        DependsOn = "[xWaitForADDomain]DscForestWait"
         }
-
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\25.txt
         xFirewall DatabaseEngineFirewallRule
         {
             Direction = "Inbound"
@@ -114,7 +114,7 @@ configuration PrepareAlwaysOnSqlServer
             LocalPort = $DatabaseEnginePort -as [String]
             Ensure = "Present"
         }
-
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\26.txt
         xFirewall DatabaseMirroringFirewallRule
         {
             Direction = "Inbound"
@@ -128,7 +128,7 @@ configuration PrepareAlwaysOnSqlServer
             LocalPort = "5022"
             Ensure = "Present"
         }
-
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\27.txt
         xFirewall ListenerFirewallRule
         {
             Direction = "Inbound"
@@ -142,7 +142,7 @@ configuration PrepareAlwaysOnSqlServer
             LocalPort = "59999"
             Ensure = "Present"
         }
-
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\28.txt
         xSqlLogin AddDomainAdminAccountToSysadminServerRole
         {
             Name = $DomainCreds.UserName
@@ -151,7 +151,7 @@ configuration PrepareAlwaysOnSqlServer
             Enabled = $true
             Credential = $Admincreds
         }
-
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\29.txt
         xADUser CreateSqlServerServiceAccount
         {
             DomainAdministratorCredential = $DomainCreds
@@ -161,7 +161,7 @@ configuration PrepareAlwaysOnSqlServer
             Ensure = "Present"
             DependsOn = "[xSqlLogin]AddDomainAdminAccountToSysadminServerRole"
         }
-
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\30.txt
         xSqlLogin AddSqlServerServiceAccountToSysadminServerRole
         {
             Name = $SQLCreds.UserName
@@ -171,7 +171,7 @@ configuration PrepareAlwaysOnSqlServer
             Credential = $Admincreds
             DependsOn = "[xADUser]CreateSqlServerServiceAccount"
         }
-        
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\31.txt
         xSqlTsqlEndpoint AddSqlServerEndpoint
         {
             InstanceName = "MSSQLSERVER"
@@ -179,7 +179,7 @@ configuration PrepareAlwaysOnSqlServer
             SqlAdministratorCredential = $Admincreds
             DependsOn = "[xSqlLogin]AddSqlServerServiceAccountToSysadminServerRole"
         }
-
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\32.txt
         xSQLServerStorageSettings AddSQLServerStorageSettings
         {
             InstanceName = "MSSQLSERVER"

@@ -72,6 +72,7 @@ function Set-TargetResource
        $allocationSizeInByte = 65536
     }
     Add-Content C:\PerfLogs\output.txt "creating Virtual disk"
+    Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\1.txt
     if ($NumberOfColumns -eq 1)
     {
         $disk = Get-Disk -Number 2
@@ -101,6 +102,7 @@ function Set-TargetResource
         if ($disk.PartitionStyle -eq "RAW")
         {
             Add-Content C:\PerfLogs\output.txt "creating RAW Virtual disk"
+            Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\2.txt
             Write-Verbose -Message "Initializing disk number '$($DiskNumber)' for drive letter 'F'... "
 
             $disk | Initialize-Disk -PartitionStyle GPT -PassThru
@@ -120,6 +122,7 @@ function Set-TargetResource
     else 
     {
             Add-Content C:\PerfLogs\output.txt "creating Storage pool "
+            Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\3.txt
 
             $DiskSizeInByte = $BytesPerDisk*$DriveSize
             
@@ -130,6 +133,7 @@ function Set-TargetResource
             Write-Verbose 'Creating Virtual Disk'
 
             Add-Content C:\PerfLogs\output.txt "creating Virtual disk"
+            Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\4.txt
          
             New-VirtualDisk -FriendlyName 'SqlVMDataDisk' -StoragePoolFriendlyName 'SqlVMStoragePool' -Size $DiskSizeInByte -Interleave $allocationSizeInByte -NumberOfColumns $NumberOfColumns -ProvisioningType Thin -ResiliencySettingName Simple
          
@@ -138,6 +142,7 @@ function Set-TargetResource
             Write-Verbose 'Initializing Disk'
 
             Add-Content C:\PerfLogs\output.txt "Initializing disk"
+            Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\5.txt
          
             Initialize-Disk -VirtualDisk (Get-VirtualDisk -FriendlyName 'SqlVMDataDisk')
           
@@ -148,6 +153,7 @@ function Set-TargetResource
             Write-Verbose 'Creating Partition'
 
             Add-Content C:\PerfLogs\output.txt "creating partition"
+            Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\6.txt
          
             New-Partition -DiskNumber $diskNumber -UseMaximumSize -DriveLetter F
              
@@ -156,12 +162,14 @@ function Set-TargetResource
             Write-Verbose 'Formatting Volume and Assigning Drive Letter'
 
             Add-Content C:\PerfLogs\output.txt "Assign drive letter"
+            Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\7.txt
              
             Format-Volume -DriveLetter F -FileSystem NTFS -NewFileSystemLabel 'Data' -Confirm:$false -Force
 
             return $true
 
             Add-Content C:\PerfLogs\output.txt "Virtual poooool disk created"
+            Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\8.txt
     }
 
     return $false
