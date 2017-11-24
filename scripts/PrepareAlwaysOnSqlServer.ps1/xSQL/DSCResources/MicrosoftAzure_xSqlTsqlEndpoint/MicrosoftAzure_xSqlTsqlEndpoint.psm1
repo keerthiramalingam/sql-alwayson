@@ -196,7 +196,7 @@ function Test-SqlTcpPort([string]$InstanceName, [uint32]$EndpointPort)
 
 function AddStamp([string]$sstr)
 {    
-    AddStamp -sstr  "$sstr $(Get-Date) $(Get-ChildItem 'C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA')"
+    Add-Content  "$sstr $(Get-Date) $(Get-ChildItem 'C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA')"
 }
 
 Export-ModuleMember -Function *-TargetResource
