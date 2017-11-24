@@ -186,7 +186,7 @@ configuration PrepareAlwaysOnSqlServer
             OptimizationType = $WorkloadType
             DependsOn = "[xSqlTsqlEndpoint]AddSqlServerEndpoint"
         }
-
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\32.txt
         xSqlServer ConfigureSqlServerWithAlwaysOn
         {
             InstanceName = $env:COMPUTERNAME
@@ -198,12 +198,12 @@ configuration PrepareAlwaysOnSqlServer
             DomainAdministratorCredential = $DomainFQDNCreds
             DependsOn = "[xSqlLogin]AddSqlServerServiceAccountToSysadminServerRole"
         }
-
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\33.txt
         LocalConfigurationManager 
         {
             RebootNodeIfNeeded = $true
         }
-
+        Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\34.txt
     }
 }
 function Get-NetBIOSName
@@ -228,6 +228,7 @@ function Get-NetBIOSName
             return $DomainName
         }
     }
+    Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\35.txt
 }
 function WaitForSqlSetup
 {
@@ -236,6 +237,7 @@ function WaitForSqlSetup
     {
         try
         {
+            Get-ChildItem "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA" | Add-Content C:\PerfLogs\36.txt
             Get-ScheduledTaskInfo "\ConfigureSqlImageTasks\RunConfigureImage" -ErrorAction Stop
             Start-Sleep -Seconds 5
         }
