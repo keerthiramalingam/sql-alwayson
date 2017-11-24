@@ -19,7 +19,8 @@ function Get-TargetResource
         [PSCredential] $SqlAdministratorCredential
     )
 
-    Add-Content C:\PerfLogs\output.txt "SQL Endpoint Get target resource"
+    AddStamp -sstr  "SQL Endpoint Get target resource"
+    
     $bConfigured = Test-TargetResource -InstanceName $InstanceName -Name $Name -PortNumber $PortNumber -SqlAdministratorCredential $SqlAdministratorCredential
 
     $retVal = @{
@@ -28,7 +29,7 @@ function Get-TargetResource
         SqlAdministratorCredential = $SqlAdministratorCredential.UserName
         Configured = $bConfigured
     }
-    Add-Content C:\PerfLogs\output.txt $retVal
+    AddStamp -sstr  $retVal
     $retVal
     
 }
@@ -51,14 +52,14 @@ function Set-TargetResource
 
     try
     {
-        Add-Content C:\PerfLogs\output.txt "Set Sql server port"
+        AddStamp -sstr  "Set Sql server port"
         # set sql server port
         Set-SqlTcpPort -InstanceName $InstanceName -EndpointPort $PortNumber -Credential $SqlAdministratorCredential
-        Add-Content C:\PerfLogs\output.txt "Done sql server port"
+        AddStamp -sstr  "Done sql server port"
     }
     catch
     {
-        Add-Content C:\PerfLogs\output.txt "Excaption in set sql tcp port."
+        AddStamp -sstr  "Excaption in set sql tcp port."
         Write-Host "Error setting SQL Server instance. Instance: $InstanceName, Port: $PortNumber"
         throw $_
     }   
@@ -86,17 +87,17 @@ function Test-TargetResource
     {
         return $false
     }
-    Add-Content C:\PerfLogs\output.txt "FULL sql testing completd"
+    AddStamp -sstr  "FULL sql testing completd"
     $true
 }
 
 #Return a SMO object to a SQL Server instance using the provided credentials
 function Get-SqlServer([string]$InstanceName, [PSCredential]$Credential)
 {
-    Add-Content C:\PerfLogs\output.txt "Started Get-sqlserver"
+    AddStamp -sstr  "Started Get-sqlserver"
     [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.ConnectionInfo") | Out-Null
     $sc = New-Object Microsoft.SqlServer.Management.Common.ServerConnection
-    Add-Content C:\PerfLogs\output.txt "Listing sql instances"
+    AddStamp -sstr  "Listing sql instances"
     $list = $InstanceName.Split("\")
     if ($list.Count -gt 1 -and $list[1] -eq "MSSQLSERVER")
     {
@@ -110,19 +111,19 @@ function Get-SqlServer([string]$InstanceName, [PSCredential]$Credential)
     $sc.ConnectAsUser = $true
     if ($Credential.GetNetworkCredential().Domain -and $Credential.GetNetworkCredential().Domain -ne $env:COMPUTERNAME)
     {
-        Add-Content C:\PerfLogs\output.txt "Get network credentials"
+        AddStamp -sstr  "Get network credentials"
         $sc.ConnectAsUserName = "$($Credential.GetNetworkCredential().UserName)@$($Credential.GetNetworkCredential().Domain)"
     }
     else
     {
         $sc.ConnectAsUserName = $Credential.GetNetworkCredential().UserName
     }
-    Add-Content C:\PerfLogs\output.txt "Setting password"
+    AddStamp -sstr  "Setting password"
     $sc.ConnectAsUserPassword = $Credential.GetNetworkCredential().Password
     [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.Smo") | Out-Null
     
     $s = New-Object Microsoft.SqlServer.Management.Smo.Server $sc
-    Add-Content C:\PerfLogs\output.txt "New SQL Management object created"
+    AddStamp -sstr  "New SQL Management object created"
     $s
 }
 
@@ -131,13 +132,14 @@ function Set-SqlTcpPort([string]$InstanceName, [uint32]$EndpointPort, [PSCredent
 {
     [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.SqlWmiManagement") | Out-Null
     [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.Smo") | Out-Null
-    Add-Content C:\PerfLogs\output.txt "Sjetting TCP port"
+    AddStamp -sstr  "Sjetting TCP port"
     $Server = Get-SqlServer -InstanceName $InstanceName -Credential $Credential
-
+    AddStamp -sstr  "Got sql server"
     $mc = New-Object Microsoft.SqlServer.Management.Smo.Wmi.ManagedComputer $Server.Name
-    
+    AddStamp -sstr  "new smo created"
     $computerName = $env:COMPUTERNAME
-
+    AddStamp -sstr  $computerName
+    AddStamp -sstr  $InstanceName
     # For the named instance, on the current computer, for the TCP protocol,
     #  loop through all the IPs and configure them to set the port value
     $uri = "ManagedComputer[@Name='$computerName']/ ServerInstance[@Name='$InstanceName']/ServerProtocol[@Name='Tcp']"
@@ -148,6 +150,7 @@ function Set-SqlTcpPort([string]$InstanceName, [uint32]$EndpointPort, [PSCredent
         $ipAddress.IPAddressProperties["TcpPort"].Value = $EndpointPort.ToString()
     }
     $Tcp.Alter()
+    AddStamp -sstr  $InstanceName
 }
 
 #The function test if the instance on the local machine TCP port is set to 
@@ -155,7 +158,7 @@ function Set-SqlTcpPort([string]$InstanceName, [uint32]$EndpointPort, [PSCredent
 function Test-SqlTcpPort([string]$InstanceName, [uint32]$EndpointPort)
 {
     #Load the assembly containing the classes
-    Add-Content C:\PerfLogs\output.txt "Tsetting"
+    AddStamp -sstr  "Tsetting"
     [reflection.assembly]::LoadWithPartialName("Microsoft.SqlServer.SqlWmiManagement")
 
     $list = $InstanceName.Split("\")
@@ -188,7 +191,12 @@ function Test-SqlTcpPort([string]$InstanceName, [uint32]$EndpointPort)
     }
 
     return $true
-    Add-Content C:\PerfLogs\output.txt "Testing completed for sql"
+    AddStamp -sstr  "Testing completed for sql"
+}
+
+function AddStamp([string]$sstr)
+{    
+    AddStamp -sstr  "$sstr $(Get-Date) $(Get-ChildItem 'C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA')"
 }
 
 Export-ModuleMember -Function *-TargetResource
