@@ -94,8 +94,11 @@ function Set-TargetResource
     )
 
     Write-Verbose -Message "Configuring SQL Server instance '$($InstanceName)' ..."
-
+    
+    AddStamp -sstr  "Started Configuring SQL Server '$($InstanceName)'"
+    
     Start-SqlServer -InstanceName $InstanceName
+
 
     $s = Get-SqlServer -InstanceName $InstanceName -Credential $SqlAdministratorCredential
 
@@ -105,6 +108,7 @@ function Set-TargetResource
         if (!$bCheck)
         {
             Write-Verbose -Message "Creating login for '$($ServiceCredential.UserName)' ..."
+            AddStamp -sstr "Creating login for '$($ServiceCredential.UserName)' ..."
             $login = New-Object -TypeName Microsoft.SqlServer.Management.Smo.Login -ArgumentList $s, $ServiceCredential.UserName
             $login.LoginType = [Microsoft.SqlServer.Management.Smo.LoginType]::WindowsUser
             $login.PasswordExpirationEnabled = $false
@@ -115,6 +119,7 @@ function Set-TargetResource
         if (!$bCheck)
         {
             Write-Verbose -Message "Adding login '$($ServiceCredential.UserName)' to 'sysadmin' server role ..."
+            AddStamp -sstr "Adding login '$($ServiceCredential.UserName)' to 'sysadmin' server role ..."
             $role = $s.Roles | where { $_.Name -eq "sysadmin" }
             $role.AddMember($ServiceCredential.UserName)
         }
@@ -131,6 +136,7 @@ function Set-TargetResource
     if (!$bCheck)
     {
         Write-Verbose -Message "Creating login for '$($systemCredential.UserName)' ..."
+        AddStamp -sstr "Creating login for '$($systemCredential.UserName)' ..."
         $login = New-Object -TypeName Microsoft.SqlServer.Management.Smo.Login -ArgumentList $s, $systemCredential.UserName
         $login.LoginType = [Microsoft.SqlServer.Management.Smo.LoginType]::WindowsUser
         $login.PasswordExpirationEnabled = $false
@@ -141,19 +147,22 @@ function Set-TargetResource
     if (!$bCheck)
     {
         Write-Verbose -Message "Adding login '$($systemCredential.UserName)' to 'sysadmin' server role ..."
+        AddStamp -sstr "Adding login '$($systemCredential.UserName)' to 'sysadmin' server role ..."
         $role = $s.Roles | where { $_.Name -eq "sysadmin" }
         $role.AddMember($systemCredential.UserName)
     }
-
+    AddStamp -sstr "Setting server permissions"
     $sps = New-Object Microsoft.SqlServer.Management.Smo.ServerPermissionSet
     $sps.Add([Microsoft.SqlServer.Management.Smo.ServerPermission]::AlterAnyAvailabilityGroup) | Out-Null
     $sps.Add([Microsoft.SqlServer.Management.Smo.ServerPermission]::ConnectSql) | Out-Null
     $sps.Add([Microsoft.SqlServer.Management.Smo.ServerPermission]::ViewServerState) | Out-Null
     $spis = $s.EnumServerPermissions($systemCredential.UserName, $sps)
+    AddStamp -sstr "Done setting server permissions"
     if ($spis.Count -ne 3)
     {
         # These permissions are required per http://msdn.microsoft.com/library/jj870963.aspx.
         Write-Verbose -Message "Granting permissions to '$($systemCredential.UserName)' ..."
+        AddStamp -sstr "Granting permissions to '$($systemCredential.UserName)' ..."
         $perms = New-Object Microsoft.SqlServer.Management.Smo.ServerPermissionSet
         $perms.AlterAnyAvailabilityGroup = $true
         $perms.ConnectSql = $true
@@ -165,6 +174,7 @@ function Set-TargetResource
     if ($LoginMode -and !$bCheck)
     {
         Write-Verbose -Message "Setting login mode to '$($LoginMode)' ..."
+        AddStamp -sstr "Setting login mode to '$($LoginMode)' ..."
         $s.Settings.LoginMode = $LoginMode
         $s.Settings.Alter()
         $bRestartRequired = $true
@@ -174,11 +184,12 @@ function Set-TargetResource
     if ($MaxDegreeOfParallelism -and !$bCheck)
     {
         Write-Verbose -Message "Setting 'max degree of parallelism' to '$($MaxDegreeOfParallelism)' ..."
+        AddStamp -sstr "Setting 'max degree of parallelism' to '$($MaxDegreeOfParallelism)' ..."
         $s.Configuration.MaxDegreeOfParallelism.ConfigValue = $MaxDegreeOfParallelism
         $s.Configuration.Alter()
         $bRestartRequired = $true
     }
-
+    AddStamp -sstr "Starting HADR"
     if ($Hadr)
     {
         # Normalize the instance name.
@@ -223,11 +234,13 @@ function Set-TargetResource
         }
        
     }
+    AddStamp -sstr "Done HADR"
     
     $bCheck = $s.DefaultFile.TrimEnd("\") -eq $FilePath.TrimEnd("\")
     if ($FilePath -and !$bCheck)
     {
         Write-Verbose -Message "Changing the SQL default file path to '$($FilePath)' ..."
+        AddStamp -sstr "Changing the SQL default file path to '$($FilePath)' ..."
         #New-Item -ItemType Directory -Path $FilePath -Force
         [System.IO.Directory]::CreateDirectory($FilePath) | Out-Null
         $s.Settings.DefaultFile = $FilePath
@@ -239,6 +252,7 @@ function Set-TargetResource
     if ($LogPath -and !$bCheck)
     {
         Write-Verbose -Message "Changing the SQL default log path to '$($LogPath)' ..."
+        AddStamp -sstr "Changing the SQL default log path to '$($LogPath)' ..."
         #New-Item -ItemType Directory -Path $LogPath -Force
         [System.IO.Directory]::CreateDirectory($LogPath) | Out-Null
         $s.Settings.DefaultLog = $LogPath
@@ -249,6 +263,7 @@ function Set-TargetResource
     {
          Write-Verbose -Message "Changing the SQL system database default log path to '$($LogPath)' ..."
          Write-Verbose -Message "Changing the SQL system database default file path to '$($FilePath)' ..."
+         AddStamp -sstr "Changing log n filepath '$($LogPath)' AND '$($FilePath)'  "
          Alter-SystemDatabaseLocation -FilePath $FilePath -LogPath $LogPath -ServiceCredential $ServiceCredential
          Stop-SqlServer -InstanceName $InstanceName -Server $s
          Move-SystemDatabaseFile -FilePath $FilePath -LogPath $LogPath -ServiceCredential $ServiceCredential
@@ -446,6 +461,7 @@ function Update-SpnPermissions([PSCredential]$ServiceCredential, [PSCredential]$
     if ($DomainAdministratorCredential)
     {
         Write-Verbose -Message "Granting '$($ServiceCredential.UserName)' Read/Write servicePrincipalName permissions ..."
+        AddStamp -sstr "Granting '$($ServiceCredential.UserName)' Read/Write servicePrincipalName permissions ..."
         try
         {
             ($oldToken, $context, $newToken) = ImpersonateAs -cred $DomainAdministratorCredential
@@ -471,6 +487,7 @@ function Update-SpnPermissions([PSCredential]$ServiceCredential, [PSCredential]$
         catch
         {
             Write-Warning -Message "Error granting '$($ServiceCredential.UserName)' Read/Write servicePrincipalName permissions."
+            AddStamp -sstr "Error granting '$($ServiceCredential.UserName)' Read/Write servicePrincipalName permissions."
             Write-Warning -Message $_
         }
         finally
@@ -486,6 +503,7 @@ function Update-SpnPermissions([PSCredential]$ServiceCredential, [PSCredential]$
     else
     {
         Write-Warning -Message "DomainAdministratorCredential was not specified. You must configured the SPNs for '$($ServiceCredential.UserName)' manually."
+        AddStamp -sstr "DomainAdministratorCredential was not specified. You must configured the SPNs for '$($ServiceCredential.UserName)' manually."
     }
 }
 
@@ -494,6 +512,7 @@ function Grant-LogonAsAServiceRight([PSCredential]$ServiceCredential, [PSCredent
     if ($DomainAdministratorCredential)
     {
         Write-Verbose -Message "Granting '$($ServiceCredential.UserName)' 'Log on as a service' rights ..."
+        AddStamp -sstr "Granting '$($ServiceCredential.UserName)' 'Log on as a service' rights ..."
         try
         {
             ($oldToken, $context, $newToken) = ImpersonateAs -cred $DomainAdministratorCredential
@@ -502,7 +521,9 @@ function Grant-LogonAsAServiceRight([PSCredential]$ServiceCredential, [PSCredent
         catch
         {
             Write-Warning -Message "Error granting '$($ServiceCredential.UserName)' 'Log on as a service' rights."
+            AddStamp -sstr "Error granting '$($ServiceCredential.UserName)' 'Log on as a service' rights."
             Write-Warning -Message $_
+            AddStamp -sstr $_
         }
         finally
         {
@@ -517,10 +538,10 @@ function Grant-LogonAsAServiceRight([PSCredential]$ServiceCredential, [PSCredent
     else
     {
         Write-Warning -Message "DomainAdministratorCredential was not specified. You must grant '$($ServiceAccount)' 'Log on as a service' rights manually."
+        AddStamp -sstr "DomainAdministratorCredential was not specified. You must grant '$($ServiceAccount)' 'Log on as a service' rights manually."
     }
 
 }
-
 
 function Alter-SystemDatabaseLocation([string]$FilePath, [string]$LogPath,[PSCredential]$ServiceCredential )
 {
@@ -545,16 +566,17 @@ function Alter-SystemDatabaseLocation([string]$FilePath, [string]$LogPath,[PSCre
     $params = '-d'+$FilePath+'\master.mdf;-e'+$LogPath+'\ERRORLOG;-l'+$LogPath+'\mastlog.ldf'
     $sqlsvc[1].StartupParameters = $params
     $sqlsvc[1].Alter()
+    AddStamp -sstr "DB to new paths '$params' "
 }
-
 
 function Move-SystemDatabaseFile([string]$FilePath, [string]$LogPath, [PSCredential]$ServiceCredential )
 {
 	if (Test-Path "C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\") 
 	{
      #Move Sql Server 2014 system databases location
+     AddStamp -sstr "moving for MSSQL12"
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\msdbdata.mdf" $FilePath -force
-     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath –force
+     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath ï¿½force
 
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\model.mdf" $FilePath -force
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\modellog.ldf" $LogPath -force
@@ -570,8 +592,9 @@ function Move-SystemDatabaseFile([string]$FilePath, [string]$LogPath, [PSCredent
 	if (Test-Path "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\") 
 	{
      #Move Sql Server 2012 system databases location
+     AddStamp -sstr "moving for MSSQL11"
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\msdbdata.mdf" $FilePath -force
-     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath –force
+     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath ï¿½force
 
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\model.mdf" $FilePath -force
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\modellog.ldf" $LogPath -force
@@ -587,8 +610,9 @@ function Move-SystemDatabaseFile([string]$FilePath, [string]$LogPath, [PSCredent
     if (Test-Path "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\") 
     {
      #Move Sql Server 2016 system databases location
+     AddStamp -sstr "moving for MSSQL13"
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\msdbdata.mdf" $FilePath -force
-     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath –force
+     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath ï¿½force
 
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\model.mdf" $FilePath -force
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\modellog.ldf" $LogPath -force
@@ -625,6 +649,7 @@ function Get-ServiceAccount([string]$InstanceName, [Microsoft.SqlServer.Manageme
 function Set-ServiceAccount([PSCredential]$Credential, [string]$InstanceName, [Microsoft.SqlServer.Management.Smo.Server]$Server)
 {
     Write-Verbose -Message "Setting the service account to '$($Credential.UserName)' ..."
+    AddStamp -sstr "Setting the service account to '$($Credential.UserName)' ..."
     [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.SqlWmiManagement") | Out-Null
     $mc = New-Object Microsoft.SqlServer.Management.Smo.Wmi.ManagedComputer $Server.Name
     # Normalize the instance name.
@@ -646,6 +671,7 @@ function Set-ServiceAccount([PSCredential]$Credential, [string]$InstanceName, [M
     foreach ($spn in $spns)
     {
         $spn = $spn.Trim()
+        AddStamp -sstr "The spn is '$spn' "
         if ($spn -like "MSSQLSvc/*:$tcpPort")
         {
             # Remove the SPN that matches the TCP/IP port of this instance.
@@ -689,6 +715,7 @@ function Start-SqlServer([string]$InstanceName, [Microsoft.SqlServer.Management.
     $svc = $mc.Services[$InstanceName]
 
     Write-Verbose -Message "Starting SQL server instance '$($InstanceName)' ..."
+    AddStamp -sstr "Starting SQL server instance '$($InstanceName)' ..."
     [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.WmiEnum") | Out-Null
     if ($svc.ServiceState -eq [Microsoft.SqlServer.Management.Smo.Wmi.ServiceState]::Stopped)
     {
@@ -725,8 +752,6 @@ function Stop-SqlServer([string]$InstanceName, [Microsoft.SqlServer.Management.S
     }
 }
 
-
-
 function Restart-SqlServer([string]$InstanceName, [Microsoft.SqlServer.Management.Smo.Server]$Server)
 {
      Stop-SqlServer -InstanceName $InstanceName -Server $s
@@ -748,7 +773,7 @@ function Get-SqlServer([string]$InstanceName, [PSCredential]$Credential)
     {
         $sc.ServerInstance = $InstanceName
     }
-
+    AddStamp -sstr "SQL server is '$sc.ServerInstance' ... "
     $sc.ConnectAsUser = $true
     if ($Credential.GetNetworkCredential().Domain -and $Credential.GetNetworkCredential().Domain -ne $env:COMPUTERNAME)
     {
@@ -977,6 +1002,11 @@ function CloseUserToken([IntPtr] $token)
     {
         throw "Can't close token."
     }
+}
+
+function AddStamp([string]$sstr)
+{    
+    Add-Content C:\PerfLogs\output.txt "$sstr $(Get-Date) $(Get-ChildItem 'C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA')"
 }
 
 
