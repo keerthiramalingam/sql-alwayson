@@ -548,7 +548,8 @@ function Alter-SystemDatabaseLocation([string]$FilePath, [string]$LogPath,[PSCre
 	$permissionString = $ServiceCredential.UserName+":(OI)(CI)(F)"
     icacls $FilePath /grant $permissionString
     icacls $LogPath /grant $permissionString
-
+    try
+    {
     Invoke-Sqlcmd "Use master"
     Invoke-sqlCmd "ALTER DATABASE tempdb MODIFY FILE (NAME = tempdev, FILENAME = '$FilePath\tempdb.mdf');"
     Invoke-sqlCmd "ALTER DATABASE tempdb MODIFY FILE (NAME = templog, FILENAME = '$LogPath\templog.ldf');"
@@ -558,7 +559,11 @@ function Alter-SystemDatabaseLocation([string]$FilePath, [string]$LogPath,[PSCre
 
     Invoke-sqlCmd "ALTER DATABASE msdb MODIFY FILE (NAME = MSDBData, FILENAME = '$FilePath\msdbdata.mdf');"
     Invoke-sqlCmd "ALTER DATABASE msdb MODIFY FILE (NAME = MSDBLog, FILENAME = '$LogPath\msdblog.ldf');"
-
+    }
+    catch
+    {
+        AddStamp -sstr $error
+    }
 	[System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.SqlWmiManagement')| Out-Null
     $smowmi = New-Object Microsoft.SqlServer.Management.Smo.Wmi.ManagedComputer 
     $sqlsvc = $smowmi.Services | Where-Object {$_.Name -like 'MSSQL*'} 
@@ -566,6 +571,7 @@ function Alter-SystemDatabaseLocation([string]$FilePath, [string]$LogPath,[PSCre
     $params = '-d'+$FilePath+'\master.mdf;-e'+$LogPath+'\ERRORLOG;-l'+$LogPath+'\mastlog.ldf'
     $sqlsvc[1].StartupParameters = $params
     $sqlsvc[1].Alter()
+    AddStamp -sstr "OUtput of alter $($?) and $($sqlsvc[1].StartupParameters)"
     AddStamp -sstr "DB to new paths '$params' "
 }
 
@@ -576,7 +582,7 @@ function Move-SystemDatabaseFile([string]$FilePath, [string]$LogPath, [PSCredent
      #Move Sql Server 2014 system databases location
      AddStamp -sstr "moving for MSSQL12"
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\msdbdata.mdf" $FilePath -force
-     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath �force
+     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath -force
 
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\model.mdf" $FilePath -force
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\modellog.ldf" $LogPath -force
@@ -594,7 +600,7 @@ function Move-SystemDatabaseFile([string]$FilePath, [string]$LogPath, [PSCredent
      #Move Sql Server 2012 system databases location
      AddStamp -sstr "moving for MSSQL11"
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\msdbdata.mdf" $FilePath -force
-     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath �force
+     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath -force
 
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\model.mdf" $FilePath -force
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\modellog.ldf" $LogPath -force
@@ -612,17 +618,32 @@ function Move-SystemDatabaseFile([string]$FilePath, [string]$LogPath, [PSCredent
      #Move Sql Server 2016 system databases location
      AddStamp -sstr "moving for MSSQL13"
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\msdbdata.mdf" $FilePath -force
-     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath �force
-
+     AddStampT -sr "$($?) - $($FilePath)"
+     AddStamp -sstr "moving for $($LogPath)"
+     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath -force
+     AddStampT -sr "$($?)"
+     AddStamp -sstr "moving for $($FilePath)"
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\model.mdf" $FilePath -force
+     AddStampT -sr "$($?)"
+     AddStamp -sstr "moving for $($LogPath)"
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\modellog.ldf" $LogPath -force
-
+     AddStampT -sr "$($?)"
+     AddStamp -sstr "moving for $($FilePath)"
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\tempdb.mdf" $FilePath -force
+     AddStampT -sr "$($?)"
+     AddStamp -sstr "moving for $($LogPath)"
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\templog.ldf" $LogPath -force
-
+     AddStampT -sr "$($?)"
+     AddStamp -sstr "moving for $($FilePath)"
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\master.mdf" $FilePath -force
+     AddStampT -sr "$($?)"
+     AddStamp -sstr "moving for $($LogPath)"
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\mastlog.ldf" $LogPath -force
+     AddStampT -sr "$($?)"
+     AddStamp -sstr "moving for $($LogPath)"
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Log\ERRORLOG" $LogPath -force
+     AddStampT -sr "$($?)"
+     AddStamp -sstr "Done all moveees"
     }
 }
 
@@ -1008,6 +1029,9 @@ function AddStamp([string]$sstr)
 {    
     Add-Content C:\PerfLogs\output.txt "$sstr $(Get-Date) $(Get-ChildItem 'C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA')"
 }
-
+function AddStampT([string]$sr)
+{    
+    Add-Content C:\PerfLogs\output.txt "$sr $(Get-Date) $(Get-ChildItem -Recurse 'F:\')"
+}
 
 Export-ModuleMember -Function *-TargetResource
