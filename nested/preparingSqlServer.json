@@ -194,6 +194,45 @@
                }
             }
          }
+      },
+      {  
+        "type":"Microsoft.Compute/virtualMachines/extensions",
+        "name":"[concat(parameters('sqlVMName'),'2/sqlAOPrepare')]",
+        "apiVersion":"2015-06-15",
+        "location":"[parameters('location')]",
+        "dependsOn":[  
+           "[concat('Microsoft.Compute/virtualMachines/',parameters('sqlVMName'),'2/extensions/SqlVmIaasExtension')]"
+        ],
+        "properties":{  
+           "publisher":"Microsoft.Powershell",
+           "type":"DSC",
+           "typeHandlerVersion":"2.20",
+           "autoUpgradeMinorVersion":false,
+           "settings":{  
+              "modulesURL":"[parameters('sqlAOPrepareModulesURL')]",
+              "configurationFunction":"[parameters('sqlAOPrepareConfigurationFunction')]",
+              "properties":{  
+                 "domainName":"[parameters('domainName')]",
+                 "sqlAlwaysOnEndpointName":"[parameters('sqlAOEPName')]",
+                 "adminCreds":{  
+                    "userName":"[parameters('adminUsername')]",
+                    "password":"privateSettingsRef:AdminPassword"
+                 },
+                 "sqlServiceCreds":{  
+                    "userName":"[parameters('sqlServerServiceAccountUserName')]",
+                    "password":"privateSettingsRef:SqlServerServiceAccountPassword"
+                 },
+                 "NumberOfDisks":"[parameters('numberOfDisks')]",
+                 "WorkloadType":"[parameters('workloadType')]"
+              }
+           },
+           "protectedSettings":{  
+              "items":{  
+                 "adminPassword":"[parameters('adminPassword')]",
+                 "sqlServerServiceAccountPassword":"[parameters('sqlServerServiceAccountPassword')]"
+              }
+           }
+        }
       }
    ],
    "outputs":{  
