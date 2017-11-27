@@ -9,7 +9,7 @@
          "value":"kit-Pass$123"
       },
       "sqlServerServiceAccountUserName":{  
-         "value":"sqlservice"
+         "value":"sqlservice-uniq"
       },
       "sqlServerServiceAccountPassword":{  
          "value":"kit-Pass$123"
