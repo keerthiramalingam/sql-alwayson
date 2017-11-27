@@ -563,24 +563,26 @@ function Alter-SystemDatabaseLocation([string]$FilePath, [string]$LogPath,[PSCre
     {
         AddStamp -sstr $error
     }
-	AddStamp -sstr "Current sql serice status is $($sqlsvc[1].ServiceState) "
-    [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.SqlWmiManagement')| Out-Null
+	[System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.SqlWmiManagement')| Out-Null
     $smowmi = New-Object Microsoft.SqlServer.Management.Smo.Wmi.ManagedComputer
-    $smowmi.Services | Where-Object {$_.Name -like 'MSSQL*'} | Out-File C:\PerfLogs\PriorAlter.txt 
-    $sqlsvc = $smowmi.Services | Where-Object {$_.Name -like 'MSSQL*'} 
+    $smowmi.Services | Where-Object {$_.Name -like 'MSSQLSERVER'} | Out-File C:\PerfLogs\PriorAlter.txt 
+    $sqlsvc = $smowmi.Services | Where-Object {$_.Name -like 'MSSQLSERVER'} 
+    AddStamp -sstr "Current sql serice status is $($sqlsvc.ServiceState) "
     $OldStartupParameters = $sqlsvc.StartupParameters
     $params = '-d'+$FilePath+'\master.mdf;-e'+$LogPath+'\ERRORLOG;-l'+$LogPath+'\mastlog.ldf'
-    $sqlsvc[1].StartupParameters = $params
-    $sqlsvc[1].Alter()
-    $sqlsvc[1].Stop()
+    $sqlsvc.StartupParameters = $params
+    $sqlsvc.Alter()
+    $sqlsvc.Stop()
     Start-Sleep -s 10
-    $smowmi.Services | Where-Object {$_.Name -like 'MSSQL*'} | Out-File C:\PerfLogs\shudbestoped.txt
-    $sqlsvc[1].Start()
+    $sqlsvc.Refresh()    
+    $smowmi.Services | Where-Object {$_.Name -like 'MSSQLSERVER'} | Out-File C:\PerfLogs\shudbestoped.txt
+    $sqlsvc.Start()
     Start-Sleep -s 10
-    AddStamp -sstr "OUtput of alter $($?) and $($sqlsvc[1].StartupParameters)"
+    $sqlsvc.Refresh()    
+    AddStamp -sstr "OUtput of alter $($?) and old params $($OldStartupParameters)"
     AddStamp -sstr "DB to new paths '$params' "
-    AddStamp -sstr "Current sql serice status is $($sqlsvc[1].ServiceState) "
-    $smowmi.Services | Where-Object {$_.Name -like 'MSSQL*'} | Out-File C:\PerfLogs\PostAlter.txt
+    AddStamp -sstr "Current sql serice status is $($sqlsvc.ServiceState) "
+    $smowmi.Services | Where-Object {$_.Name -like 'MSSQLSERVER'} | Out-File C:\PerfLogs\PostAlter.txt
 
 }
 
