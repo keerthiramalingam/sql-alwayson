@@ -261,14 +261,13 @@ function Set-TargetResource
     }
     if ($LogPath -and $FilePath)
     {
-         Write-Verbose -Message "Changing the SQL system database default log path to '$($LogPath)' ..."
-         Write-Verbose -Message "Changing the SQL system database default file path to '$($FilePath)' ..."
-         AddStamp -sstr "Changing log n filepath '$($LogPath)' AND '$($FilePath)'  "
-         Alter-SystemDatabaseLocation -FilePath $FilePath -LogPath $LogPath -ServiceCredential $ServiceCredential
-         Stop-SqlServer -InstanceName $InstanceName -Server $s
-         Move-SystemDatabaseFile -FilePath $FilePath -LogPath $LogPath -ServiceCredential $ServiceCredential
-         Start-SqlServer -InstanceName $InstanceName -Server $s
-         $bRestartRequired= $false
+        Write-Verbose -Message "Changing the SQL system database default log path to '$($LogPath)' ..."
+        Write-Verbose -Message "Changing the SQL system database default file path to '$($FilePath)' ..."
+        Alter-SystemDatabaseLocation -FilePath $FilePath -LogPath $LogPath -ServiceCredential $ServiceCredential
+        Stop-SqlServer -InstanceName $InstanceName -Server $s
+        Move-SystemDatabaseFile -FilePath $FilePath -LogPath $LogPath -ServiceCredential $ServiceCredential
+        Start-SqlServer -InstanceName $InstanceName -Server $s
+        $bRestartRequired= $false
      }
 
     if ($bRestartRequired)
@@ -564,15 +563,25 @@ function Alter-SystemDatabaseLocation([string]$FilePath, [string]$LogPath,[PSCre
     {
         AddStamp -sstr $error
     }
-	[System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.SqlWmiManagement')| Out-Null
-    $smowmi = New-Object Microsoft.SqlServer.Management.Smo.Wmi.ManagedComputer 
+	AddStamp -sstr "Current sql serice status is $($sqlsvc[1].ServiceState) "
+    [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.SqlWmiManagement')| Out-Null
+    $smowmi = New-Object Microsoft.SqlServer.Management.Smo.Wmi.ManagedComputer
+    $smowmi.Services | Where-Object {$_.Name -like 'MSSQL*'} | Out-File C:\PerfLogs\PriorAlter.txt 
     $sqlsvc = $smowmi.Services | Where-Object {$_.Name -like 'MSSQL*'} 
     $OldStartupParameters = $sqlsvc.StartupParameters
     $params = '-d'+$FilePath+'\master.mdf;-e'+$LogPath+'\ERRORLOG;-l'+$LogPath+'\mastlog.ldf'
     $sqlsvc[1].StartupParameters = $params
     $sqlsvc[1].Alter()
+    $sqlsvc[1].Stop()
+    Start-Sleep -s 10
+    $smowmi.Services | Where-Object {$_.Name -like 'MSSQL*'} | Out-File C:\PerfLogs\shudbestoped.txt
+    $sqlsvc[1].Start()
+    Start-Sleep -s 10
     AddStamp -sstr "OUtput of alter $($?) and $($sqlsvc[1].StartupParameters)"
     AddStamp -sstr "DB to new paths '$params' "
+    AddStamp -sstr "Current sql serice status is $($sqlsvc[1].ServiceState) "
+    $smowmi.Services | Where-Object {$_.Name -like 'MSSQL*'} | Out-File C:\PerfLogs\PostAlter.txt
+
 }
 
 function Move-SystemDatabaseFile([string]$FilePath, [string]$LogPath, [PSCredential]$ServiceCredential )
