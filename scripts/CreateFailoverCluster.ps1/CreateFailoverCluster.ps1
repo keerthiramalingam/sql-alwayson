@@ -51,7 +51,7 @@ configuration CreateFailoverCluster
         [String]$SqlAlwaysOnEndpointName,
 
         [Parameter(Mandatory)]
-        [String]$dnsServerNameO,
+        [String]$dnsServerName,
 
         [String]$DNSServerName='dc-pdc',
 

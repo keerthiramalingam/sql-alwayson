@@ -69,7 +69,7 @@
          "properties":{  
             "publisher":"Microsoft.Powershell",
             "type":"DSC",
-            "typeHandlerVersion":"2.19",
+            "typeHandlerVersion":"2.20",
             "autoUpgradeMinorVersion":false,
             "settings":{  
                "modulesURL":"[parameters('createClusterModulesURL')]",
@@ -92,7 +92,7 @@
                   "primaryReplica":"[concat(parameters('sqlVMName'),'1')]",
                   "secondaryReplica":"[concat(parameters('sqlVMName'),'0')]",
                   "secondaryReplica1":"[concat(parameters('sqlVMName'),'2')]",
-                  "dnsServerNameO":"[parameters('adPDCVMName')]",
+                  "dnsServerName":"[parameters('adPDCVMName')]",
                   "adminCreds":{  
                      "userName":"[parameters('adminUsername')]",
                      "password":"privateSettingsRef:adminPassword"
