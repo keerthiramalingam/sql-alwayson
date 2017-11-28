@@ -103,6 +103,7 @@ function Set-TargetResource
     if (!$login)
     {
         Write-Verbose -Message "Creating login '$($Name)'"
+        AddStamp -sstr  "Creating login '$($Name)'"
         $login = New-Object -TypeName Microsoft.SqlServer.Management.Smo.Login -ArgumentList $s, $Name
         $login.LoginType = $LoginType
         $login.PasswordExpirationEnabled = $false
@@ -118,6 +119,7 @@ function Set-TargetResource
     elseif ($Password)
     {
         Write-Verbose -Message "Setting the password for login '$($Name)'"
+        AddStamp -sstr  "Setting the password for login '$($Name)'"
         $login.ChangePassword($Password.GetNetworkCredential().Password)
     }
 
@@ -179,6 +181,9 @@ function Test-TargetResource
     # Set-TargetResource is idempotent.
     $false
 }
-
+function AddStamp([string]$sstr)
+{    
+    Add-Content C:\PerfLogs\output.txt "$(Get-Date) - $sstr "
+}
 
 Export-ModuleMember -Function *-TargetResource

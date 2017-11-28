@@ -121,16 +121,17 @@ function Set-TargetResource
             $DiskSizeInByte = $BytesPerDisk*$DriveSize
             
             Write-Verbose 'Creating Storage Pool'
-         
+            AddStamp -sstr "STG pool  created."
             New-StoragePool -FriendlyName 'SqlVMStoragePool' -StorageSubSystemUniqueId (Get-StorageSubSystem -FriendlyName '*Space*').uniqueID -PhysicalDisks (Get-PhysicalDisk -CanPool $true)
          
             Write-Verbose 'Creating Virtual Disk'
-         
+            AddStamp -sstr "VD created."
             New-VirtualDisk -FriendlyName 'SqlVMDataDisk' -StoragePoolFriendlyName 'SqlVMStoragePool' -Size $DiskSizeInByte -Interleave $allocationSizeInByte -NumberOfColumns $NumberOfColumns -ProvisioningType Thin -ResiliencySettingName Simple
          
             Start-Sleep -Seconds 20
          
             Write-Verbose 'Initializing Disk'
+            AddStamp -sstr "Virtual disk initialized."
          
             Initialize-Disk -VirtualDisk (Get-VirtualDisk -FriendlyName 'SqlVMDataDisk')
           
@@ -139,15 +140,16 @@ function Set-TargetResource
             $diskNumber = ((Get-VirtualDisk -FriendlyName 'SqlVMDataDisk' | Get-Disk).Number)
           
             Write-Verbose 'Creating Partition'
+            
          
             New-Partition -DiskNumber $diskNumber -UseMaximumSize -DriveLetter F
              
             Start-Sleep -Seconds 20
-         
+            AddStamp -sstr "part created."
             Write-Verbose 'Formatting Volume and Assigning Drive Letter'
              
             Format-Volume -DriveLetter F -FileSystem NTFS -NewFileSystemLabel 'Data' -Confirm:$false -Force
-
+            AddStamp -sstr "Formatted"
             return $true
     }
 
@@ -184,12 +186,13 @@ function Test-TargetResource
         if (Test-Path F:\) 
         {
             Write-Verbose 'F:/ exists on target.'
-
+            AddStamp -sstr "Virtual disk created."
             $result = $true
         }
         else
         {
             Write-Verbose "F:/ can't be found."
+            AddStamp -sstr "Virtual disk not created."
             $result = $false
         }
     }
@@ -201,5 +204,8 @@ function Test-TargetResource
     $result    
 }
 
-
+function AddStamp([string]$sstr)
+{    
+    Add-Content C:\PerfLogs\output.txt "$(Get-Date) - $sstr "
+}
 Export-ModuleMember -Function *-TargetResource

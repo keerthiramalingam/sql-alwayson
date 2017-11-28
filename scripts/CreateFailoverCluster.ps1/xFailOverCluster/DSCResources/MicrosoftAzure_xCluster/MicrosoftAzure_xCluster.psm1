@@ -73,6 +73,7 @@ function Set-TargetResource
     $bCreate = $true
 
     Write-Verbose -Message "Checking if cluster '$($Name)' is present ..."
+    AddStamp -sstr "Checking if cluster '$($Name)' is present ..."
     try
     {
         $ComputerInfo = Get-WmiObject Win32_ComputerSystem
@@ -103,6 +104,7 @@ function Set-TargetResource
             $cluster = New-Cluster -Name $Name -Node $env:COMPUTERNAME -NoStorage -Force -ErrorAction Stop
             
             Write-Verbose -Message "Successfully created cluster '$($Name)'."
+            AddStamp -sstr "Successfully created cluster '$($Name)'."
 
             # See http://social.technet.microsoft.com/wiki/contents/articles/14776.how-to-configure-windows-failover-cluster-in-azure-for-alwayson-availability-groups.aspx
             # for why the following workaround is necessary.
@@ -131,6 +133,7 @@ function Set-TargetResource
             $clusterNameRes | Start-ClusterResource -ErrorAction Stop | Out-Null
 
             Write-Verbose -Message "Starting Cluster '$($Name)' ..."
+            AddStamp -sstr "Starting Cluster '$($Name)' ..."
             Start-Cluster -Name $Name -ErrorAction Stop | Out-Null
             (Get-Cluster).SameSubnetThreshold = 20
         }
@@ -169,6 +172,7 @@ function Set-TargetResource
             else
             {
                 Write-Verbose -Message "Adding node $($node)' to the cluster"
+                AddStamp -sstr "Adding node $($node)' to the cluster"
                 $cluster | Add-ClusterNode $node -ErrorAction Stop | Out-Null
             }
             Write-Verbose -Message "Successfully added node $($node)' to cluster '$($Name)'."
@@ -335,6 +339,10 @@ function CloseUserToken([IntPtr] $token)
     {
         throw "Can't close token."
     }
+}
+function AddStamp([string]$sstr)
+{    
+    Add-Content C:\PerfLogs\output.txt "$(Get-Date) - $sstr "
 }
 
 

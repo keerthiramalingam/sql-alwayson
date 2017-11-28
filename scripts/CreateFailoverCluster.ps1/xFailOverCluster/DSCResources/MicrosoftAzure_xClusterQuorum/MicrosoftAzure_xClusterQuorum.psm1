@@ -89,13 +89,14 @@ function Test-TargetResource
             if ($quorum.QuorumType -eq [Microsoft.FailoverClusters.PowerShell.ClusterQuorumType]::NodeMajority)
             {
                 Write-Verbose -Message "Cluster quorum for cluster '$($Name)' is already set to node majority type."
-                Write-Verbose -Message "Yaayyyyyyyyyyyyyyyyyyyyyyyy"
+                AddStamp -sstr "Yaayyyyyyyyyyyyyyyyyyyyyyyy" 
                 $bRet = $true
             }
             else
             {
                 Write-Verbose -Message "Cluster quorum for cluster '$($Name)' is NOT set to node majority type."
                 Write-Verbose -Message "Current setting: $($quorum.QuorumType)"
+                AddStamp -sstr "Current setting: $($quorum.QuorumType)"
                 Write-Verbose -Message "Still sooper"
             }
         }
@@ -103,6 +104,7 @@ function Test-TargetResource
     catch
     {
         Write-Verbose -Message "Error testing for cluster quorum for cluster '$($Name)'."
+        AddStamp -sstr "Error testing for cluster quorum for cluster '$($Name)'."
         throw $_
     }
     finally
@@ -170,6 +172,9 @@ function CloseUserToken([IntPtr] $token)
         throw "Can't close token."
     }
 }
-
+function AddStamp([string]$sstr)
+{    
+    Add-Content C:\PerfLogs\output.txt "$(Get-Date) - $sstr "
+}
 
 Export-ModuleMember -Function *-TargetResource

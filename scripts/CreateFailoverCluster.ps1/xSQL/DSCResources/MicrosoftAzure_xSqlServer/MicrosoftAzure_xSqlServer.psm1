@@ -978,6 +978,9 @@ function CloseUserToken([IntPtr] $token)
         throw "Can't close token."
     }
 }
-
+function AddStamp([string]$sstr)
+{    
+    Add-Content C:\PerfLogs\output.txt "$(Get-Date) - $sstr "
+}
 
 Export-ModuleMember -Function *-TargetResource

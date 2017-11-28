@@ -159,6 +159,8 @@ function Set-TargetResource
                 Write-Verbose -Message "Renamed computer to '$($Name)'."
             }
         }
+        AddStamp -sstr "Domain Joined"
+        
     }
     else
     {
@@ -251,6 +253,7 @@ function Test-TargetResource
         catch
         {
            Write-Verbose "The machine is not a member of $DomainName."
+           AddStamp -sstr "The machine is not a member of $DomainName."
            return $false
         }
     }
@@ -289,5 +292,8 @@ function GetComputerDomain
         Write-Debug 'This machine is not a domain member.'
     }
 }
-
+function AddStamp([string]$sstr)
+{    
+    Add-Content C:\PerfLogs\output.txt "$(Get-Date) - $sstr "
+}
 Export-ModuleMember -Function *-TargetResource

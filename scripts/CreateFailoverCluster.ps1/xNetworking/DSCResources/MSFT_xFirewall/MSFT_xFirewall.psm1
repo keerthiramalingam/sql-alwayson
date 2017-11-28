@@ -47,7 +47,7 @@ function Get-TargetResource
     $getTargetResourceResult.Description = $firewallRule.Description
     $getTargetResourceResult.ApplicationPath = $properties.ApplicationFilters.Program
     $getTargetResourceResult.Service = $properties.ServiceFilters.Service
-
+    
     return $getTargetResourceResult;
 }
 
@@ -598,6 +598,7 @@ function Get-FirewallRules
     if (-not $firewallRules)
     {
         Write-Verbose "Get-FirewallRules: No Firewall Rules found for [$Name]"
+        AddStamp -sstr "Get-FirewallRules: No Firewall Rules found for [$Name]"
         return $null
     }
     else
@@ -660,7 +661,10 @@ function Get-FirewallRuleProperty
         return &(Get-Command "Get-NetFirewall$Property")  -AssociatedNetFireWallRule $FireWallRule
     }    
 }
-
+function AddStamp([string]$sstr)
+{    
+    Add-Content C:\PerfLogs\output.txt "$(Get-Date) - $sstr "
+}
 #endregion
 
 Export-ModuleMember -Function *-TargetResource

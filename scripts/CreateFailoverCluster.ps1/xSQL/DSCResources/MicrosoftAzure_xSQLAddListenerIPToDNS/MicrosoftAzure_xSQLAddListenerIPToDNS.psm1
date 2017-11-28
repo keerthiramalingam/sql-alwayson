@@ -189,6 +189,10 @@ function Update-DNS
             Add-DnsServerResourceRecordA -Name $LBName -ZoneName $DomainName -IPv4Address $LBAddress
         }
 }
+function AddStamp([string]$sstr)
+{    
+    Add-Content C:\PerfLogs\output.txt "$(Get-Date) - $sstr "
+}
 
 Export-ModuleMember -Function *-TargetResource
 

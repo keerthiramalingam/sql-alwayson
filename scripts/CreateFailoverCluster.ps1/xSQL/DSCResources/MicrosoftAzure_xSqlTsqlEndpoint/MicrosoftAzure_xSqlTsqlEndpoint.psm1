@@ -55,6 +55,7 @@ function Set-TargetResource
     catch
     {
         Write-Host "Error setting SQL Server instance. Instance: $InstanceName, Port: $PortNumber"
+        AddStamp -sstr "Error setting SQL Server instance. Instance: $InstanceName, Port: $PortNumber"
         throw $_
     }   
 }
@@ -132,6 +133,7 @@ function Set-SqlTcpPort([string]$InstanceName, [uint32]$EndpointPort, [PSCredent
     # For the named instance, on the current computer, for the TCP protocol,
     #  loop through all the IPs and configure them to set the port value
     $uri = "ManagedComputer[@Name='$computerName']/ ServerInstance[@Name='$InstanceName']/ServerProtocol[@Name='Tcp']"
+    AddStamp -sstr "URI -> $($uri) "
     $Tcp = $mc.GetSmoObject($uri)
     foreach ($ipAddress in $Tcp.IPAddresses)
     {
@@ -179,5 +181,8 @@ function Test-SqlTcpPort([string]$InstanceName, [uint32]$EndpointPort)
 
     return $true
 }
-
+function AddStamp([string]$sstr)
+{    
+    Add-Content C:\PerfLogs\output.txt "$(Get-Date) - $sstr "
+}
 Export-ModuleMember -Function *-TargetResource

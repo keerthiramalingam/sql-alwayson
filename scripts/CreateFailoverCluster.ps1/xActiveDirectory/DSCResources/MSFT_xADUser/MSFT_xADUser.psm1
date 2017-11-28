@@ -27,6 +27,7 @@ function Get-TargetResource
         Write-Verbose -Message "Checking if the user '$($UserName)' in domain '$($DomainName)' is present ..."
         $user = Get-AdUser -Identity $UserName -Credential $DomainAdministratorCredential
         Write-Verbose -Message "Found '$($UserName)' in domain '$($DomainName)'."
+        AddStamp -sstr "Found '$($UserName)' in domain '$($DomainName)'."
         $Ensure = "Present"
     }
     catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException]
@@ -71,6 +72,7 @@ function Set-TargetResource
     }
     catch
     {
+        AddStamp -sstr "Error configuring user '$($UserName)' in domain '$($DomainName)'."
         Write-Error -Message "Error configuring user '$($UserName)' in domain '$($DomainName)'."
         throw $_
     }
@@ -135,6 +137,7 @@ function ValidateProperties
         Write-Verbose -Message "Checking if the user '$($UserName)' in domain '$($DomainName)' is present ..."
         $user = Get-AdUser -Identity $UserName -Credential $DomainAdministratorCredential
         Write-Verbose -Message "Found '$($UserName)' in domain '$($DomainName)'."
+        AddStamp -sstr "Found '$($UserName)' in domain '$($DomainName)'."
         
         if ($Ensure -eq "Absent")
         {
@@ -223,6 +226,9 @@ function ValidateProperties
         }
     }
 }
-
+function AddStamp([string]$sstr)
+{    
+    Add-Content C:\PerfLogs\output.txt "$(Get-Date) - $sstr "
+}
 
 Export-ModuleMember -Function *-TargetResource
