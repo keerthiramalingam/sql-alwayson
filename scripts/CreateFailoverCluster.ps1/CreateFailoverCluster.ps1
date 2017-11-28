@@ -287,7 +287,7 @@ configuration CreateFailoverCluster
             DomainAdministratorCredential = $DomainFQDNCreds
             DependsOn = "[xCluster]FailoverCluster"
         }
-
+        AddStamp -sstr "secondary with always on"
         xSqlServer ConfigureSqlServerSecondary1WithAlwaysOn
         {
             InstanceName = $SecondaryReplica1
@@ -296,7 +296,7 @@ configuration CreateFailoverCluster
             DomainAdministratorCredential = $DomainFQDNCreds
             DependsOn = "[xCluster]FailoverCluster"
         }
-
+        AddStamp -sstr "sec1 wiht always on"
         xSqlEndpoint SqlSecondaryAlwaysOnEndpoint
         {
             InstanceName = $SecondaryReplica
@@ -306,7 +306,7 @@ configuration CreateFailoverCluster
             SqlAdministratorCredential = $SQLCreds
 	    DependsOn="[xSqlServer]ConfigureSqlServerSecondaryWithAlwaysOn"
         }
-
+        AddStamp -sstr "sec with end point"
         xSqlEndpoint SqlSecondary1AlwaysOnEndpoint
         {
             InstanceName = $SecondaryReplica1
@@ -316,7 +316,7 @@ configuration CreateFailoverCluster
             SqlAdministratorCredential = $SQLCreds
 	    DependsOn="[xSqlServer]ConfigureSqlServerSecondary1WithAlwaysOn"
         }
-        
+        AddStamp -sstr "sec1 with end point"
         xSqlAvailabilityGroup SqlAG
         {
             Name = $SqlAlwaysOnAvailabilityGroupName
@@ -327,6 +327,7 @@ configuration CreateFailoverCluster
             SqlAdministratorCredential = $Admincreds
 	        DependsOn="[xSqlEndpoint]SqlSecondaryAlwaysOnEndpoint"
         }
+        AddStamp -sstr "AG"
            
         xSqlNewAGDatabase SQLAGDatabases
         {
@@ -337,6 +338,7 @@ configuration CreateFailoverCluster
             SqlAdministratorCredential = $SQLCreds
 	        DependsOn = "[xSqlAvailabilityGroup]SqlAG"
         }
+        AddStamp -sstr "AG db"
         xSqlNewAGDatabase SQLAGDatabases1
         {
             SqlAlwaysOnAvailabilityGroupName = $SqlAlwaysOnAvailabilityGroupName
@@ -346,7 +348,7 @@ configuration CreateFailoverCluster
             SqlAdministratorCredential = $SQLCreds
 	        DependsOn = "[xSqlAvailabilityGroup]SqlAG"
         }
-
+        AddStamp -sstr "AG db1"
         xSqlAvailabilityGroupListener SqlAGListener
         {
             Name = $SqlAlwaysOnAvailabilityGroupListenerName
@@ -360,7 +362,7 @@ configuration CreateFailoverCluster
             SqlAdministratorCredential = $Admincreds
             DependsOn = "[xSqlNewAGDatabase]SQLAGDatabases"
         }
-
+        AddStamp -sstr "Ag listener"
         LocalConfigurationManager 
         {
             RebootNodeIfNeeded = $true
