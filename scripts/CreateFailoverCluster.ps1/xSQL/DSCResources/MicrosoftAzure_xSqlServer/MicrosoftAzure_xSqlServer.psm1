@@ -543,8 +543,11 @@ function Alter-SystemDatabaseLocation([string]$FilePath, [string]$LogPath,[PSCre
     $sqlsvc = $smowmi.Services | Where-Object {$_.Name -like 'MSSQLSERVER'} 
     $OldStartupParameters = $sqlsvc.StartupParameters
     $params = '-d'+$FilePath+'\master.mdf;-e'+$LogPath+'\ERRORLOG;-l'+$LogPath+'\mastlog.ldf'
-    $sqlsvc[1].StartupParameters = $params
-    $sqlsvc[1].Alter()
+    $sqlsvc.StartupParameters = $params
+    $sqlsvc.Alter()
+    $sqlsvc.Stop()
+    Start-Sleep -s 10
+    $sqlsvc.Start()
 }
 
 
