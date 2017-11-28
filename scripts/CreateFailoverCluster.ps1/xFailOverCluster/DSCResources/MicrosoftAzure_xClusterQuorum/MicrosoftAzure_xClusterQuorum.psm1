@@ -11,9 +11,6 @@ function Get-TargetResource
         [parameter(Mandatory)]
         [string] $Name,
 
-#        [parameter(Mandatory)]
-#        [string] $SharePath,
-
         [parameter(Mandatory)]
         [PSCredential] $DomainAdministratorCredential
     )
