@@ -540,7 +540,7 @@ function Alter-SystemDatabaseLocation([string]$FilePath, [string]$LogPath,[PSCre
 
 	[System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.SqlWmiManagement')| Out-Null
     $smowmi = New-Object Microsoft.SqlServer.Management.Smo.Wmi.ManagedComputer 
-    $sqlsvc = $smowmi.Services | Where-Object {$_.Name -like 'MSSQL*'} 
+    $sqlsvc = $smowmi.Services | Where-Object {$_.Name -like 'MSSQLSERVER'} 
     $OldStartupParameters = $sqlsvc.StartupParameters
     $params = '-d'+$FilePath+'\master.mdf;-e'+$LogPath+'\ERRORLOG;-l'+$LogPath+'\mastlog.ldf'
     $sqlsvc[1].StartupParameters = $params
@@ -554,7 +554,7 @@ function Move-SystemDatabaseFile([string]$FilePath, [string]$LogPath, [PSCredent
 	{
      #Move Sql Server 2014 system databases location
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\msdbdata.mdf" $FilePath -force
-     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath –force
+     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath -force
 
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\model.mdf" $FilePath -force
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\modellog.ldf" $LogPath -force
@@ -571,7 +571,7 @@ function Move-SystemDatabaseFile([string]$FilePath, [string]$LogPath, [PSCredent
 	{
      #Move Sql Server 2012 system databases location
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\msdbdata.mdf" $FilePath -force
-     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath –force
+     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath -force
 
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\model.mdf" $FilePath -force
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\modellog.ldf" $LogPath -force
@@ -588,7 +588,7 @@ function Move-SystemDatabaseFile([string]$FilePath, [string]$LogPath, [PSCredent
     {
      #Move Sql Server 2016 system databases location
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\msdbdata.mdf" $FilePath -force
-     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath –force
+     Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\msdblog.ldf" $LogPath -force
 
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\model.mdf" $FilePath -force
      Move-Item "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\modellog.ldf" $LogPath -force

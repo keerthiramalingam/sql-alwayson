@@ -50,6 +50,9 @@ configuration CreateFailoverCluster
         [Parameter(Mandatory)]
         [String]$SqlAlwaysOnEndpointName,
 
+        [Parameter(Mandatory)]
+        [String]$dnsServerNameO,
+
         [String]$DNSServerName='dc-pdc',
 
         [UInt32]$DatabaseEnginePort = 1433,
@@ -96,13 +99,13 @@ configuration CreateFailoverCluster
             OptimizationType = $WorkloadType
             RebootVirtualMachine = $RebootVirtualMachine
         }
-
+        AddStamp -sstr "Created Virtual disk"
         WindowsFeature FC
         {
             Name = "Failover-Clustering"
             Ensure = "Present"
         }
-
+        AddStamp -sstr "Failover Cluster"
 		WindowsFeature FailoverClusterTools 
         { 
             Ensure = "Present" 
@@ -217,7 +220,7 @@ configuration CreateFailoverCluster
             SqlAdministratorCredential = $Admincreds
             DependsOn = "[xSqlLogin]AddSqlServerServiceAccountToSysadminServerRole"
         }
-
+        AddStamp -sstr "Added end point"
         xSQLServerStorageSettings AddSQLServerStorageSettings
         {
             InstanceName = "MSSQLSERVER"
@@ -236,13 +239,13 @@ configuration CreateFailoverCluster
             DomainAdministratorCredential = $DomainCreds
             Nodes = $Nodes
         }
-
+        AddStamp -sstr "created cluster"
         xClusterQuorum FailoverClusterQuorum
         {
             Name = $ClusterName
             DomainAdministratorCredential = $DomainCreds
         }
-
+        AddStamp -sstr "Quorum set"
         xSqlServer ConfigureSqlServerWithAlwaysOn
         {
             InstanceName = $env:COMPUTERNAME
@@ -255,7 +258,7 @@ configuration CreateFailoverCluster
             DomainAdministratorCredential = $DomainFQDNCreds
             DependsOn = "[xCluster]FailoverCluster"
         }
-
+        AddStamp -sstr "Configured sql"
         xSQLAddListenerIPToDNS AddLoadBalancer
         {
             LBName = $LBName
@@ -472,3 +475,7 @@ function Enable-CredSSPNTLM
     Write-Verbose "DONE:Setting up CredSSP for NTLM"
 }
 
+function AddStamp([string]$sstr)
+{    
+    Add-Content C:\PerfLogs\output.txt "$(Get-Date) - $sstr "
+}

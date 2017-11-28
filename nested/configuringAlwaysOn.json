@@ -92,7 +92,7 @@
                   "primaryReplica":"[concat(parameters('sqlVMName'),'1')]",
                   "secondaryReplica":"[concat(parameters('sqlVMName'),'0')]",
                   "secondaryReplica1":"[concat(parameters('sqlVMName'),'2')]",
-                  "dnsServerName":"[parameters('adPDCVMName')]",
+                  "dnsServerNameO":"[parameters('adPDCVMName')]",
                   "adminCreds":{  
                      "userName":"[parameters('adminUsername')]",
                      "password":"privateSettingsRef:adminPassword"
