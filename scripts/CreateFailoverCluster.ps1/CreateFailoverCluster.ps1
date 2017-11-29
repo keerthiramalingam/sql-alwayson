@@ -327,7 +327,43 @@ configuration CreateFailoverCluster
             SqlAdministratorCredential = $Admincreds
 	        DependsOn="[xSqlEndpoint]SqlSecondaryAlwaysOnEndpoint"
         }
-        AddStamp -sstr "AG"
+        AddStamp -sstr "aaded AG"           
+        xSqlNewAGDatabase SQLAGDatabases
+        {
+            SqlAlwaysOnAvailabilityGroupName = $SqlAlwaysOnAvailabilityGroupName
+            DatabaseNames = $DatabaseNames
+            PrimaryReplica = $PrimaryReplica
+            SecondaryReplica = $SecondaryReplica
+            SqlAdministratorCredential = $SQLCreds
+	        DependsOn = "[xSqlAvailabilityGroup]SqlAG"
+        }
+        AddStamp -sstr "AG db done"
+
+        xSqlNewAGDatabase SQLAGDatabases1
+        {
+            SqlAlwaysOnAvailabilityGroupName = $SqlAlwaysOnAvailabilityGroupName
+            DatabaseNames = $DatabaseNames
+            PrimaryReplica = $PrimaryReplica
+            SecondaryReplica = $SecondaryReplica1
+            SqlAdministratorCredential = $SQLCreds
+	        DependsOn = "[xSqlAvailabilityGroup]SQLAGDatabases"
+        }
+
+        xSqlAvailabilityGroupListener SqlAGListener
+        {
+            Name = $SqlAlwaysOnAvailabilityGroupListenerName
+            AvailabilityGroupName = $SqlAlwaysOnAvailabilityGroupName
+            DomainNameFqdn = $LBFQName
+            ListenerPortNumber = $SqlAlwaysOnAvailabilityGroupListenerPort
+            ListenerIPAddress = $LBAddress
+            ProbePortNumber = 59999
+            InstanceName = $env:COMPUTERNAME
+            DomainCredential = $DomainCreds
+            SqlAdministratorCredential = $Admincreds
+            DependsOn = "[xSqlNewAGDatabase]SQLAGDatabases1"
+        }
+        AddStamp -sstr "Ag listener Done"
+        
         LocalConfigurationManager 
         {
             RebootNodeIfNeeded = $true

@@ -167,6 +167,7 @@ function Configure-Databases
         foreach ($database in $DatabaseNames)
         {
             Write-Verbose -Message "Creating sample database '$($database)' ..."
+            AddStamp -sstr "Creating sample database '$($database)' ..."
             Create-SqlAlwaysOnDatabase -DatabaseName $database -Server $primaryServer
 
             #synchronize existing availability group replicas
@@ -214,12 +215,14 @@ function Update-SqlAlwaysOnAvailabilityGroupDatabases([String]$SqlAlwaysOnAvaila
         if (($secondaryAG.AvailabilityDatabases | Where-Object { $_.Name -eq $Database.Name }).IsJoined)
         {
             Write-Verbose -Message "Database '$($database.Name)' already joined to availability group '$($secondaryAG.Name)', skipping ..."
+            AddStamp -sstr "Database '$($database.Name)' already joined to availability group '$($secondaryAG.Name)', skipping ..."
             continue
         }
 
         # Backup the database and log from the primary replica.
         $device = "$backupShare\$($database.Name).bak"
         Write-Verbose -Message "Backing up database '$($database.Name)' from '$($PrimaryServer.Name)' to '$($device)' ..."
+        AddStamp -sstr "Backing up database '$($database.Name)' from '$($PrimaryServer.Name)' to '$($device)' ..."
         $backup = New-Object Microsoft.SqlServer.Management.Smo.Backup
         $backup.Database = $database.Name
         $backup.Action = [Microsoft.SqlServer.Management.Smo.BackupActionType]::Database
@@ -227,6 +230,7 @@ function Update-SqlAlwaysOnAvailabilityGroupDatabases([String]$SqlAlwaysOnAvaila
         $backup.Devices.AddDevice($device, [Microsoft.SqlServer.Management.Smo.DeviceType]::File)
         $backup.SqlBackup($PrimaryServer)
         Write-Verbose -Message "Successfully backed up database '$($database.Name)'."
+        AddStamp -sstr "Successfully backed up database '$($database.Name)'."
 
         $device = "$backupShare\$($database.Name).log"
         Write-Verbose -Message "Backing up log for database '$($database.Name)' from '$($PrimaryServer.Name)' to '$($device)' ..."
@@ -237,7 +241,8 @@ function Update-SqlAlwaysOnAvailabilityGroupDatabases([String]$SqlAlwaysOnAvaila
         $backup.Devices.AddDevice($device, [Microsoft.SqlServer.Management.Smo.DeviceType]::File)
         $backup.SqlBackup($PrimaryServer)
         Write-Verbose -Message "Successfully backed up log for database '$($database.Name)'."
-
+        AddStamp -sstr "Successfully backed up log for database '$($database.Name)'."
+        
         # Restore the database and log to the secondary replica.
         $device = "$backupShare\$($database.Name).bak"
         Write-Verbose -Message "Restoring database '$($database.Name)' from '$($device)' to '$($PrimaryServer.Name)' ..."
@@ -248,6 +253,7 @@ function Update-SqlAlwaysOnAvailabilityGroupDatabases([String]$SqlAlwaysOnAvaila
         $restore.NoRecovery = $true
         $restore.SqlRestore($replicaServer)
         Write-Verbose -Message "Successfully restored database '$($database.Name)'."
+        AddStamp -sstr "Successfully restored database '$($database.Name)'."
 
         $device = "$backupShare\$($database.Name).log"
         Write-Verbose -Message "Restoring log for database '$($database.Name)' from '$($device)' to '$($PrimaryServer.Name)' ..."
@@ -258,6 +264,7 @@ function Update-SqlAlwaysOnAvailabilityGroupDatabases([String]$SqlAlwaysOnAvaila
         $restore.NoRecovery = $true
         $restore.SqlRestore($replicaServer)
         Write-Verbose -Message "Successfully restored database '$($database.Name)'."
+        AddStamp -sstr "Successfully restored database '$($database.Name)'."
 
         # Add the database to the availability group.
         if (-not ($primaryAG.AvailabilityDatabases | Where-Object { $_.Name -eq $Database.Name }))
@@ -268,6 +275,7 @@ function Update-SqlAlwaysOnAvailabilityGroupDatabases([String]$SqlAlwaysOnAvaila
             $adb.Create()
             $primaryAG.Alter()
             Write-Verbose -Message "Successfully added database '$($database.Name)' to availability group."
+            AddStamp -sstr "Successfully added database '$($database.Name)' to availability group."
         }
 
         # It can take some time before the database shows up in the availability group on the secondary replica.
@@ -281,6 +289,7 @@ function Update-SqlAlwaysOnAvailabilityGroupDatabases([String]$SqlAlwaysOnAvaila
             }
 
             Write-Verbose -Message "Waiting for database '$($database.Name)' to be available ..."
+            AddStamp -sstr "Waiting for database '$($database.Name)' to be available ..."
             Start-Sleep -Seconds 20
         }
 
@@ -290,6 +299,7 @@ function Update-SqlAlwaysOnAvailabilityGroupDatabases([String]$SqlAlwaysOnAvaila
             Write-Verbose -Message "Joining database '$($databaseOnSecondary.Name)' to availability group '$($secondaryAG.Name)' ..."
             $databaseOnSecondary.JoinAvailablityGroup()
             Write-Verbose -Message "Successfully joined database '$($databaseOnSecondary.Name)' to availability group."
+            AddStamp -sstr "Joined '$($databaseOnSecondary.Name)' to availability group '$($secondaryAG.Name)' ..."
         }
     }
 
@@ -390,10 +400,10 @@ function Create-SqlAlwaysOnDatabase([string]$DatabaseName, [string]$DataPath, [s
 
         # Create the database
         $db.Create()
-
+       
         $createDate = $db.CreateDate
         Write-Verbose -Message "Created database '$DatabaseName' on '$createDate'"
-
+        AddStamp -sstr "Created database $($DatabaseName) on $($createDate)"
         #refresh the server connection
         $Server.Refresh()
     }
@@ -410,7 +420,7 @@ function Create-SqlAlwaysOnDatabase([string]$DatabaseName, [string]$DataPath, [s
 function Create-SqlAlwaysOnBackupShare([string]$BackupShare, [string]$BackupPath, [string]$ServiceAccount)
 {
     Write-Verbose -Message "Creating directory '$($BackupFolder)' ..."
-
+    AddStamp -sstr "Creating directory '$($BackupFolder)' ..."
     # create folder if it does not exist
     if (!(Test-Path -path $BackupPath))
     {
@@ -472,6 +482,11 @@ function Get-SqlServer([string]$InstanceName, [PSCredential]$SqlAdministratorCre
     $s = New-Object Microsoft.SqlServer.Management.Smo.Server $sc
 
     $s
+}
+
+function AddStamp([string]$sstr)
+{    
+    Add-Content C:\PerfLogs\output.txt "$(Get-Date) - $sstr "
 }
 
 Export-ModuleMember -Function *-TargetResource
